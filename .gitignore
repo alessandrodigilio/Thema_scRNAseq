@@ -1,0 +1,72 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.codex
+.vscode/
+.idea/
+.codex/
+
+# R / generic temp files
+.Rhistory
+.RData
+.Rproj.user/
+.Ruserdata
+*.Rproj
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Python / Conda local artifacts
+__pycache__/
+*.pyc
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Large raw and derived data
+data/raw_counts/
+data/filtered_data/
+data/integrated_object/
+data/**/*.h5
+data/**/*.mtx
+data/**/*.mtx.gz
+data/**/*.tsv
+data/**/*.tsv.gz
+data/**/*.csv
+data/**/*.rds
+data/**/*.rda
+data/**/*.qs
+data/**/*.loom
+data/**/*.h5ad
+
+# Generated outputs
+results/
+figures/
+ppt/
+
+# Heavy exported documents and images
+*.png
+*.pdf
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+*.svg
+*.pptx
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+*.bz2
+*.xz
