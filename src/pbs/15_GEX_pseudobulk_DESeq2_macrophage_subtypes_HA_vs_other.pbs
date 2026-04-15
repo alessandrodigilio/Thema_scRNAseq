@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N pb_DESeq2_macro
+#PBS -l select=1:ncpus=8:mem=96gb
+#PBS -l walltime=12:00:00
+#PBS -o /data/home/alessandro.digilio/Thema_R/logs/pseudobulk_DESeq2_macrophage_subtypes_HA_vs_other_out.log
+#PBS -e /data/home/alessandro.digilio/Thema_R/logs/pseudobulk_DESeq2_macrophage_subtypes_HA_vs_other_err.log
+#PBS -m abe
+#PBS -M alessandro.digilio@policlinico.mi.it
+
+set -euo pipefail
+
+PROJECT_ROOT="/data/home/alessandro.digilio/Thema_R"
+
+cd "$PROJECT_ROOT"
+
+source /data/apps/anaconda/2024.10.01/etc/profile.d/conda.sh
+eval "$(conda shell.bash hook)"
+conda activate scatac_gex_env
+
+Rscript src/15_GEX_pseudobulk_DESeq2_macrophage_subtypes_HA_vs_other.R

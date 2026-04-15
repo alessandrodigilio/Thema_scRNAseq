@@ -35,6 +35,7 @@ dependencies:
   - bioconductor-data-packages=20260207=hdfd78af_0
   - bioconductor-delayedarray=0.28.0=r43ha9d7317_2
   - bioconductor-delayedmatrixstats=1.24.0=r43hdfd78af_0
+  - bioconductor-deseq2
   - bioconductor-dirichletmultinomial=1.44.0=r43hee7dd41_1
   - bioconductor-edger=4.0.16=r43hf17093f_1
   - bioconductor-ensdb.hsapiens.v86=2.99.0=r43hdfd78af_12
@@ -307,6 +308,7 @@ dependencies:
   - r-miniui=0.1.2=r43hc72bb7e_0
   - r-munsell=0.5.1=r43hc72bb7e_1
   - r-nlme=3.1_168=r43hb67ce94_0
+  - r-openxlsx
   - r-openssl=2.3.3=r43he8289e2_0
   - r-parallelly=1.45.1=r43h54b55ab_0
   - r-patchwork=1.3.2=r43hc72bb7e_0

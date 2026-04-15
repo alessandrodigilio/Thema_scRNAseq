@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N iron_degsum
+#PBS -l select=1:ncpus=2:mem=16gb
+#PBS -l walltime=02:00:00
+#PBS -o /data/home/alessandro.digilio/Thema_R/logs/iron_genes_in_pseudobulk_DEGs_out.log
+#PBS -e /data/home/alessandro.digilio/Thema_R/logs/iron_genes_in_pseudobulk_DEGs_err.log
+#PBS -m abe
+#PBS -M alessandro.digilio@policlinico.mi.it
+
+set -euo pipefail
+
+PROJECT_ROOT="/data/home/alessandro.digilio/Thema_R"
+
+cd "$PROJECT_ROOT"
+
+source /data/apps/anaconda/2024.10.01/etc/profile.d/conda.sh
+eval "$(conda shell.bash hook)"
+conda activate scatac_gex_env
+
+Rscript src/10_GEX_iron_genes_in_pseudobulk_DEGs_HA_vs_other.R

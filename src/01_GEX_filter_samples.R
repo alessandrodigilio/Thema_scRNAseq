@@ -80,10 +80,12 @@ if (length(missing_thr) > 0) {
 }
 
 SAMPLES <- setdiff(SAMPLES, EXCLUDED_SAMPLES)
+SKIP_COMPLETED_SAMPLES <- c("10TA")
 
 cat("Samples requested in subject_info.xlsx:", length(subject_info$sample_name), "\n")
 cat("Samples to process:", length(SAMPLES), "\n")
 cat("Included samples:", paste(SAMPLES, collapse = ", "), "\n")
+cat("Completed samples to reuse:", paste(SKIP_COMPLETED_SAMPLES, collapse = ", "), "\n")
 
 # Apply lower thresholds while skipping missing cutoffs
 apply_min <- function(x, thr_val) {
@@ -122,7 +124,7 @@ read_sample_counts <- function(sample_id, sample_path) {
   source_used <- NULL
 
   if (dir.exists(matrix_dir)) {
-    counts <- Read10X(matrix.dir = matrix_dir)
+    counts <- Read10X(data.dir = matrix_dir)
     source_used <- matrix_dir
   } else if (file.exists(h5_path)) {
     counts <- Read10X_h5(filename = h5_path)
@@ -132,7 +134,7 @@ read_sample_counts <- function(sample_id, sample_path) {
     fallback_h5 <- paste0(fallback_dir, ".h5")
 
     if (dir.exists(fallback_dir)) {
-      counts <- Read10X(matrix.dir = fallback_dir)
+      counts <- Read10X(data.dir = fallback_dir)
       source_used <- fallback_dir
     } else if (file.exists(fallback_h5)) {
       counts <- Read10X_h5(filename = fallback_h5)
@@ -155,6 +157,29 @@ read_sample_counts <- function(sample_id, sample_path) {
 
   cat("Loaded sample", sample_id, "from", source_used, "\n")
   counts
+}
+
+# Read only feature names from the 10x matrix directory when available.
+read_sample_features <- function(sample_id, sample_path) {
+  matrix_dir <- file.path(GEX_RAW_DATA_DIR, sample_path)
+  feature_file <- file.path(matrix_dir, "features.tsv.gz")
+
+  if (!file.exists(feature_file)) {
+    fallback_dir <- file.path(GEX_RAW_DATA_DIR, paste0(sample_id, "_raw_feature_bc_matrix"))
+    feature_file <- file.path(fallback_dir, "features.tsv.gz")
+  }
+
+  if (!file.exists(feature_file)) return(NULL)
+
+  features <- utils::read.table(
+    gzfile(feature_file),
+    sep = "\t",
+    stringsAsFactors = FALSE,
+    quote = "",
+    comment.char = ""
+  )
+
+  make.unique(as.character(features[[2]]))
 }
 
 # Run SoupX on RNA counts and return corrected counts plus summary metrics
@@ -430,10 +455,73 @@ objs_filt <- list()
 # Accumulate one summary row per sample for the final CSV log
 log_rows <- list()
 
+cat("\nComputing common RNA features across samples...\n")
+feature_sets <- list()
+for (s in SAMPLES) {
+  thr_row <- thr[thr$sample_name == s, , drop = FALSE]
+  features <- read_sample_features(
+    sample_id = s,
+    sample_path = thr_row$sample_path[1]
+  )
+
+  if (!is.null(features)) {
+    feature_sets[[s]] <- features
+    cat(s, "features:", length(features), "\n")
+  }
+}
+
+COMMON_FEATURES <- NULL
+if (length(feature_sets) == length(SAMPLES)) {
+  COMMON_FEATURES <- Reduce(intersect, feature_sets)
+  cat("Common features retained:", length(COMMON_FEATURES), "\n")
+} else {
+  warning("Could not read features.tsv.gz for all samples; feature intersection will be skipped")
+}
+
 for (s in SAMPLES) {
   cat("\n==============================\n")
   cat("Filtering sample:", s, "\n")
   cat("==============================\n")
+
+  out_rds <- file.path(OBJECTS_DIR, paste0(s, "_filtered.rds"))
+
+  if (s %in% SKIP_COMPLETED_SAMPLES) {
+    if (!file.exists(out_rds)) {
+      stop("Cannot reuse completed sample ", s, ": missing ", out_rds)
+    }
+
+    cat("Reusing existing filtered object:", out_rds, "\n")
+    obj_f <- readRDS(out_rds)
+    objs_filt[[s]] <- obj_f
+
+    panel_path <- file.path(FIG_FILTERING_DIR, paste0(s, "_soupx_scdblfinder_panel.png"))
+    if (!file.exists(panel_path)) panel_path <- NA_character_
+
+    log_rows[[s]] <- data.frame(
+      sample_id = s,
+      status = "reused_existing",
+      exclusion_reason = NA_character_,
+      n_before = NA_integer_,
+      n_after_qc = NA_integer_,
+      n_after_scdblfinder = ncol(obj_f),
+      frac_kept = NA_real_,
+      soupx_status = "reused_existing",
+      soupx_rho = NA_real_,
+      soupx_umi_before = NA_real_,
+      soupx_umi_after = NA_real_,
+      soupx_umis_removed = NA_real_,
+      soupx_fraction_removed = NA_real_,
+      soupx_median_genes_before = NA_real_,
+      soupx_median_genes_after = NA_real_,
+      scdblfinder_status = "reused_existing",
+      scdblfinder_error = NA_character_,
+      scdblfinder_singlets = ncol(obj_f),
+      scdblfinder_doublets_removed = NA_integer_,
+      panel_plot_path = panel_path
+    )
+
+    next
+  }
 
   thr_row <- thr[thr$sample_name == s, , drop = FALSE]
   if (nrow(thr_row) != 1) stop("Thresholds not found or duplicated for sample: ", s)
@@ -442,6 +530,10 @@ for (s in SAMPLES) {
     sample_id = s,
     sample_path = thr_row$sample_path[1]
   )
+
+  if (!is.null(COMMON_FEATURES)) {
+    counts <- counts[COMMON_FEATURES, , drop = FALSE]
+  }
 
   # Build a temporary object to compute RNA QC and define filtered cells
   obj_raw <- CreateSeuratObject(counts = counts, assay = "RNA", project = s)
@@ -516,7 +608,6 @@ for (s in SAMPLES) {
   cat("Cells after scDblFinder:", n_after_scdblfinder, "\n")
 
   # Save the filtered sample object
-  out_rds <- file.path(OBJECTS_DIR, paste0(s, "_filtered.rds"))
   saveRDS(obj_f, out_rds)
 
   # Keep the object for the final merge
@@ -558,6 +649,7 @@ if (length(objs_filt) == 0) {
 log_df <- do.call(rbind, log_rows)
 write.csv(log_df, file.path(LOG_DIR, "gex_filtering_log.csv"), row.names = FALSE)
 write.csv(log_df, file.path(POST_FILTER_QC_DIR, "filtering_summary.csv"), row.names = FALSE)
+write.csv(log_df, file.path(FILTERING_QC_DIR, "filtering_summary.csv"), row.names = FALSE)
 
 # Merge filtered objects into one Seurat object for downstream integration
 cat("\nMerging filtered samples...\n")

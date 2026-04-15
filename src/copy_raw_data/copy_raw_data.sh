@@ -6,7 +6,11 @@
 
 set -euo pipefail
 
-SRC_BASE="/data/bioinfo/FP/Hadi/single_cell/Gaultierotti_Membrane/cellranger/count"
+# old ref: 24k genes
+# SRC_BASE="/data/bioinfo/FP/Hadi/single_cell/Gaultierotti_Membrane/cellranger/count"
+
+# new ref: 63k genes
+SRC_BASE="/data/bioinfo/FP/Hadi/single_cell/May29th/cellranger/count/"
 TARGET_BASE="$HOME/Thema_R/data/raw_counts"
 
 mkdir -p "$TARGET_BASE"
