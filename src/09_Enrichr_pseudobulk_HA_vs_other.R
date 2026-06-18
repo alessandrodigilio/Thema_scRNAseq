@@ -50,6 +50,18 @@ IRON_RELATED_TERM_PATTERNS <- c(
   "Iron"
 )
 
+TGF_BETA_TERM_PATTERNS <- c(
+  "TGF",
+  "TGFB",
+  "TGF-beta",
+  "Transforming Growth Factor",
+  "Transforming Growth Factor Beta",
+  "SMAD",
+  "SMAD2",
+  "SMAD3",
+  "SMAD4"
+)
+
 # Exclude very broad or low-information terms from the plots.
 # Patterns are matched after the Reactome / KEGG suffix cleanup.
 EXCLUDED_TERM_PATTERNS <- c(
@@ -275,6 +287,8 @@ build_selected_pathway_gene_tile_plot <- function(pathway_df,
         Term = rep(as.character(sig_df$Term[i]), length(genes)),
         gene = genes,
         gene_index = seq_along(genes),
+        gene_row = ifelse(seq_along(genes) %% 2 == 0, 2, 1),
+        gene_col = ceiling(seq_along(genes) / 2),
         stringsAsFactors = FALSE
       )
     })
@@ -288,27 +302,23 @@ build_selected_pathway_gene_tile_plot <- function(pathway_df,
     sort = FALSE
   )
   gene_tiles$Term <- factor(gene_tiles$Term, levels = term_levels)
-  gene_tiles$segment_width <- 1.2
-  gene_tiles <- gene_tiles[order(gene_tiles$Term, gene_tiles$gene_index), , drop = FALSE]
-  gene_tiles$x_center <- ave(
-    gene_tiles$segment_width,
-    gene_tiles$Term,
-    FUN = function(x) cumsum(x) - (x / 2)
-  )
+  gene_tiles$Term_index <- as.numeric(gene_tiles$Term)
+  gene_tiles$y_center <- gene_tiles$Term_index + ifelse(gene_tiles$gene_row == 1, -0.22, 0.22)
+  gene_tiles$x_center <- gene_tiles$gene_col
 
-  max_genes <- max(as.numeric(table(gene_tiles$Term)))
+  max_cols <- max(gene_tiles$gene_col, na.rm = TRUE)
   max_abs_lfc <- max(abs(gene_tiles$log2FoldChange), na.rm = TRUE)
   if (!is.finite(max_abs_lfc) || max_abs_lfc == 0) {
     max_abs_lfc <- 1
   }
 
-  ggplot(gene_tiles, aes(y = Term, x = segment_width, fill = log2FoldChange)) +
-    geom_col(width = 0.78, position = "stack", color = "black", linewidth = 0.35) +
+  ggplot(gene_tiles, aes(x = x_center, y = y_center, fill = log2FoldChange)) +
+    geom_tile(width = 0.96, height = 0.38, color = "black", linewidth = 0.35) +
     geom_text(
       data = gene_tiles,
-      aes(x = x_center, y = Term, label = gene),
+      aes(x = x_center, y = y_center, label = gene),
       angle = 0,
-      size = 4.5,
+      size = 3.4,
       color = "black",
       inherit.aes = FALSE
     ) +
@@ -322,12 +332,16 @@ build_selected_pathway_gene_tile_plot <- function(pathway_df,
       name = "log2FC"
     ) +
     scale_x_continuous(
-      limits = c(0, max_genes),
-      breaks = 0:max_genes,
-      labels = rep("", max_genes + 1),
+      limits = c(0.5, max_cols + 0.5),
+      breaks = seq_len(max_cols),
+      labels = rep("", max_cols),
       expand = c(0, 0)
     ) +
-    scale_y_discrete(drop = FALSE) +
+    scale_y_continuous(
+      breaks = seq_along(term_levels),
+      labels = rep("", length(term_levels)),
+      expand = expansion(mult = c(0.05, 0.05))
+    ) +
     labs(
       title = NULL,
       x = NULL,
@@ -355,11 +369,14 @@ build_selected_pathway_gene_tile_plot <- function(pathway_df,
     )
 }
 
-# Extract genes from iron-related Enrichr terms and save a combined Enrichr panel.
+# Extract genes from selected Enrichr terms and save a combined Enrichr panel.
 run_selected_pathway_gene_barplots <- function(enrich_res,
                                                deg_df,
                                                cell_type_label,
-                                               safe_ct) {
+                                               safe_ct,
+                                               term_patterns,
+                                               panel_name,
+                                               gene_label) {
   if (!(cell_type_label %in% SELECTED_PATHWAY_CELLTYPES)) {
     return(invisible(NULL))
   }
@@ -372,7 +389,7 @@ run_selected_pathway_gene_barplots <- function(enrich_res,
     if (nrow(df) == 0) next
 
     df <- clean_enrichr_terms(df)
-    term_regex <- paste(IRON_RELATED_TERM_PATTERNS, collapse = "|")
+    term_regex <- paste(term_patterns, collapse = "|")
     df$num_genes <- sapply(strsplit(df$Genes, ";"), length)
     df$gene_ratio <- df$num_genes / max(1, nrow(unique(deg_df["gene"])))
     df$is_significant <- !is.na(df$Adjusted.P.value) & df$Adjusted.P.value < PADJ_CUTOFF
@@ -402,7 +419,7 @@ run_selected_pathway_gene_barplots <- function(enrich_res,
   }
 
   if (length(selected_rows) == 0 || length(plot_rows) == 0) {
-    message("No selected pathway hits for ", cell_type_label)
+    message("No ", panel_name, " pathway hits for ", cell_type_label)
     return(invisible(NULL))
   }
 
@@ -416,19 +433,19 @@ run_selected_pathway_gene_barplots <- function(enrich_res,
 
   table_file <- file.path(
     ENRICHR_PATHWAY_TABLE_DIR,
-    paste0("selected_iron_related_pathway_genes_", safe_ct, ".csv")
+    paste0("selected_", panel_name, "_pathway_genes_", safe_ct, ".csv")
   )
   write.csv(selected_df, table_file, row.names = FALSE)
   message("Saved selected pathway gene table: ", table_file)
 
   p_dot <- build_enrichr_dotplot(
     plot_df = pathway_plot_df,
-    title = paste0(cell_type_label, ": iron-related pathways")
+    title = paste0(cell_type_label, ": ", panel_name, " pathways")
   )
   p_genes <- build_selected_pathway_gene_tile_plot(
     pathway_df = pathway_plot_df,
     deg_df = deg_df,
-    title = "Iron-related genes"
+    title = gene_label
   )
 
   if (!is.null(p_dot) && !is.null(p_genes)) {
@@ -443,7 +460,7 @@ run_selected_pathway_gene_barplots <- function(enrich_res,
       )
     plot_file <- file.path(
       ENRICHR_PATHWAY_FIG_DIR,
-      paste0("selected_iron_related_pathway_gene_panel_", safe_ct, ".png")
+      paste0("selected_", panel_name, "_pathway_gene_panel_", safe_ct, ".png")
     )
     n_terms <- length(unique(selected_df$Term))
     print(combined_plot)
@@ -526,7 +543,20 @@ for (i in seq_len(nrow(summary_df))) {
       enrich_res = enrich_res,
       deg_df = df,
       cell_type_label = cell_type_label,
-      safe_ct = safe_ct
+      safe_ct = safe_ct,
+      term_patterns = IRON_RELATED_TERM_PATTERNS,
+      panel_name = "iron_related",
+      gene_label = "Iron-related genes"
+    )
+
+    run_selected_pathway_gene_barplots(
+      enrich_res = enrich_res,
+      deg_df = df,
+      cell_type_label = cell_type_label,
+      safe_ct = safe_ct,
+      term_patterns = TGF_BETA_TERM_PATTERNS,
+      panel_name = "TGF_beta_related",
+      gene_label = "TGF-beta-related genes"
     )
   }
 }

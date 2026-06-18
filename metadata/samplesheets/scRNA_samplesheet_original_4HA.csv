@@ -1,0 +1,6 @@
+sample,fastq_1,fastq_2
+HA_1,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_1/87301_ID2557_1-HA-RA-01_S1_L001_R1_001.fastq.gz,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_1/87301_ID2557_1-HA-RA-01_S1_L001_R2_001.fastq.gz
+HA_2,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_2/87302_ID2557_2-HA-RA-02_S1_L001_R1_001.fastq.gz,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_2/87302_ID2557_2-HA-RA-02_S1_L001_R2_001.fastq.gz
+HA_3,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_3/88758_ID2557_3-HA-RA-3_S3_L001_R1_001.fastq.gz,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_3/88758_ID2557_3-HA-RA-3_S3_L001_R2_001.fastq.gz
+HA_4,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_4/88759_ID2557_4-HA-RA-4_S4_L001_R1_001.fastq.gz,/data/bioinfo/FP/HA_scRNA_membrane_old/FASTQ/HA_4/88759_ID2557_4-HA-RA-4_S4_L001_R2_001.fastq.gz
+
