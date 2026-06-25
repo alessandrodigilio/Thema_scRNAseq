@@ -19,4 +19,4 @@ cd "$project_root"
 eval "$(conda shell.bash hook)"
 conda activate thema_r_env
 
-Rscript src/04_annotation.R
+Rscript src/atlas/04_annotation.R

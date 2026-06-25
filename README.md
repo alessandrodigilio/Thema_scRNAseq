@@ -6,7 +6,13 @@ The analysis focuses on the cellular and transcriptional architecture of hemophi
 
 ## Repository Structure
 
-- `src/`: R scripts for quality control, filtering, integration, annotation, differential expression, enrichment, subclustering, ferroptosis scoring, and trajectory analysis.
+- `src/global_config.R`: project-wide paths, labels, palettes and shared parameters.
+- `src/atlas/`: atlas-level quality control, filtering, integration, annotation, differential expression, enrichment and iron/ferroptosis analyses.
+- `src/macrophage_subclusters/`: macrophage reclustering and downstream analyses.
+- `src/endothelial_subclusters/`: endothelial reclustering and downstream analyses.
+- `src/fibroblast_subcluster/`: destructive lining fibroblast reclustering and downstream analyses.
+- `src/trajectory_analysis/`: monocle3 trajectory analysis.
+- `src/paper_subcluster_umaps.R`: publication-oriented UMAP panels.
 - `src/pbs/`: PBS launcher scripts for the R analysis steps.
 - `src/pre_processing/`: upstream nf-core/scrnaseq Cell Ranger launcher and raw-data utility scripts.
 - `metadata/`: sample metadata, filtering thresholds, curated gene sets, and samplesheet templates.
@@ -49,20 +55,19 @@ src/pre_processing/nfcore_scrnaseq_cellranger_all_samples.pbs
 Run the scripts in numerical order:
 
 ```text
-00_qc_prefiltering.R
-01_filter_samples.R
-02_integration.R
-04_annotation.R
-05_celltype_composition_ha_vs_other.R
-06_pseudobulk_deseq2_ha_vs_other.R
-07_enrichment_ha_vs_other.R
-08_ferroptosis_ha_vs_other.R: ferroptosis scoring and iron-related DEG summary
-10-14: macrophage subclustering and downstream analyses
-15-19: endothelial subclustering and downstream analyses
-20-23: destructive lining fibroblast subclustering and downstream analyses
-24_quick_fibroblast_tgfbeta_featureplots.R
-25_monocle3_trajectory_analysis.R
-26_paper_subcluster_umaps.R
+src/atlas/00_qc_prefiltering.R
+src/atlas/01_filter_samples.R
+src/atlas/02_integration.R
+src/atlas/04_annotation.R
+src/atlas/05_celltype_composition_ha_vs_other.R
+src/atlas/06_pseudobulk_deseq2_ha_vs_other.R
+src/atlas/07_enrichment_ha_vs_other.R
+src/atlas/08_ferroptosis_ha_vs_other.R
+src/macrophage_subclusters/10-14: macrophage subclustering and downstream analyses
+src/endothelial_subclusters/15-19: endothelial subclustering and downstream analyses
+src/fibroblast_subcluster/20-24: destructive lining fibroblast subclustering and downstream analyses
+src/trajectory_analysis/monocle3_trajectory_analysis.R
+src/paper_subcluster_umaps.R
 ```
 
 PBS scripts matching the main analysis steps are available in `src/pbs/`.

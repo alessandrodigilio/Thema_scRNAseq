@@ -19,4 +19,4 @@ cd "$project_root"
 eval "$(conda shell.bash hook)"
 conda activate thema_r_env
 
-Rscript src/19_pseudobulk_deseq2_endothelial_subtypes_ha_vs_other.R
+Rscript src/endothelial_subclusters/19_pseudobulk_deseq2_endothelial_subtypes_ha_vs_other.R

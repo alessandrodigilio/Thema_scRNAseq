@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
 # wd
 setwd("~/Thema_R")
 source("src/global_config.R")
-source("src/utils.R")
+source("src/atlas/utils.R")
 
 # directories
 input_object <- file.path(data_dir, "integrated_object", "annotated.rds")

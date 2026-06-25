@@ -19,4 +19,4 @@ cd "$project_root"
 eval "$(conda shell.bash hook)"
 conda activate thema_r_env
 
-Rscript src/10_macrophage_subclustering.R
+Rscript src/macrophage_subclusters/10_macrophage_subclustering.R

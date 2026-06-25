@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
 # wd
 setwd("~/Thema_R")
 source("src/global_config.R")
-source("src/utils.R")
+source("src/atlas/utils.R")
 
 # directories
 pseudobulk_res_dir <- file.path(results_dir, "pseudobulk_deseq2")

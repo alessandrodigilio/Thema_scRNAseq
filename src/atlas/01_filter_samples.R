@@ -22,7 +22,7 @@ suppressPackageStartupMessages({
 # wd
 setwd("~/Thema_R")
 source("src/global_config.R")
-source("src/utils.R") # helper functions
+source("src/atlas/utils.R") # helper functions
 
 # directories
 objects_dir <- filtered_data_dir
