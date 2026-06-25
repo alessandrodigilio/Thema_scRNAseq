@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N pb_DESeq2_macro
+#PBS -l select=1:ncpus=8:mem=96gb
+#PBS -l walltime=12:00:00
+#PBS -o logs/pseudobulk_DESeq2_macrophage_subtypes_HA_vs_other_out.log
+#PBS -e logs/pseudobulk_DESeq2_macrophage_subtypes_HA_vs_other_err.log
+#PBS -m abe
+
+#############################################################
+### Macrophage subtype pseudobulk differential expression ###
+#############################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/14_pseudobulk_deseq2_macrophage_subtypes_ha_vs_other.R

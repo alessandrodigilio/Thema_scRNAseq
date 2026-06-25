@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N endo_ferro
+#PBS -l select=1:ncpus=8:mem=96gb
+#PBS -l walltime=12:00:00
+#PBS -o logs/endothelial_ferroptosis_out.log
+#PBS -e logs/endothelial_ferroptosis_err.log
+#PBS -m abe
+
+############################################################
+### Endothelial subtype ferroptosis scoring: HA vs other ###
+############################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/18_ferroptosis_endothelial_subtypes_ha_vs_other.R

@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N pseudobulk_HA
+#PBS -l select=1:ncpus=8:mem=96gb
+#PBS -l walltime=12:00:00
+#PBS -o logs/pseudobulk_deseq2_ha_vs_other_out.log
+#PBS -e logs/pseudobulk_deseq2_ha_vs_other_err.log
+#PBS -m abe
+
+#############################################################
+### Atlas pseudobulk differential expression: HA vs other ###
+#############################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/06_pseudobulk_deseq2_ha_vs_other.R

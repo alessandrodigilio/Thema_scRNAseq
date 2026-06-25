@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N macro_final
+#PBS -l select=1:ncpus=4:mem=48gb
+#PBS -l walltime=06:00:00
+#PBS -o logs/macrophage_finalize_out.log
+#PBS -e logs/macrophage_finalize_err.log
+#PBS -m abe
+
+###########################################
+### Final macrophage subtype annotation ###
+###########################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/11_finalize_macrophage_subclustering.R

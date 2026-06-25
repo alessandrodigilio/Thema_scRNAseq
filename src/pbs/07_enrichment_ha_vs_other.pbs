@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N enrichment_HA
+#PBS -l select=1:ncpus=4:mem=64gb
+#PBS -l walltime=06:00:00
+#PBS -o logs/enrichment_ha_vs_other_out.log
+#PBS -e logs/enrichment_ha_vs_other_err.log
+#PBS -m abe
+
+######################################
+### Atlas enrichment: HA vs other ###
+######################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/07_enrichment_ha_vs_other.R

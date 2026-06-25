@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N dlf_func_analysis
+#PBS -l select=1:ncpus=4:mem=64gb
+#PBS -l walltime=04:00:00
+#PBS -o logs/functional_analysis_HA_enriched_destructive_lining_fibroblast_states_out.log
+#PBS -e logs/functional_analysis_HA_enriched_destructive_lining_fibroblast_states_err.log
+#PBS -m abe
+
+#########################################################################
+### Functional analysis of HA-enriched destructive lining fibroblasts ###
+#########################################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/23_functional_analysis_ha_enriched_destructive_lining_fibroblast_states.R

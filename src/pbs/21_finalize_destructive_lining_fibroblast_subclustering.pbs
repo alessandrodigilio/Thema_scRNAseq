@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N dlf_finalize
+#PBS -l select=1:ncpus=4:mem=64gb
+#PBS -l walltime=06:00:00
+#PBS -o logs/destructive_lining_fibroblast_finalize_out.log
+#PBS -e logs/destructive_lining_fibroblast_finalize_err.log
+#PBS -m abe
+
+######################################################
+### Final destructive lining fibroblast annotation ###
+######################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/21_finalize_destructive_lining_fibroblast_subclustering.R

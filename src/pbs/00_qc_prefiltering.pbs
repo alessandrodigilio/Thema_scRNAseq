@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N qc_prefiltering
+#PBS -l select=1:ncpus=8:mem=64gb
+#PBS -l walltime=04:00:00
+#PBS -o logs/qc_prefiltering_out.log
+#PBS -e logs/qc_prefiltering_err.log
+#PBS -m abe
+
+#######################
+### QC prefiltering ###
+#######################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/00_qc_prefiltering.R

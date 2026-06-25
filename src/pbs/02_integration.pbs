@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N integration
+#PBS -l select=1:ncpus=24:mem=128gb
+#PBS -l walltime=16:00:00
+#PBS -o logs/integration_out.log
+#PBS -e logs/integration_err.log
+#PBS -m abe
+
+#########################################
+### Sample integration and clustering ###
+#########################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/02_integration.R

@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N dlf_subcluster
+#PBS -l select=1:ncpus=8:mem=96gb
+#PBS -l walltime=12:00:00
+#PBS -o logs/destructive_lining_fibroblast_subclustering_out.log
+#PBS -e logs/destructive_lining_fibroblast_subclustering_err.log
+#PBS -m abe
+
+###################################################
+### Destructive lining fibroblast subclustering ###
+###################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/20_destructive_lining_fibroblast_subclustering.R

@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N iron_ferr_HA
+#PBS -l select=1:ncpus=8:mem=64gb
+#PBS -l walltime=08:00:00
+#PBS -o logs/iron_ferroptosis_ha_vs_other_out.log
+#PBS -e logs/iron_ferroptosis_ha_vs_other_err.log
+#PBS -m abe
+
+######################################################
+### Atlas iron and ferroptosis analysis: HA vs other ###
+######################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/08_ferroptosis_ha_vs_other.R

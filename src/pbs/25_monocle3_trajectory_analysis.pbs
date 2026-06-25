@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N monocle3_traj
+#PBS -l select=1:ncpus=8:mem=96gb
+#PBS -l walltime=12:00:00
+#PBS -o logs/monocle3_trajectory_analysis_out.log
+#PBS -e logs/monocle3_trajectory_analysis_err.log
+#PBS -m abe
+
+###################################################
+### Monocle3 trajectory and pseudotime analysis ###
+###################################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/25_monocle3_trajectory_analysis.R

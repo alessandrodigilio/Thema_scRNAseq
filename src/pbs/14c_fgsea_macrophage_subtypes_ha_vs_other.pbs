@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N fgsea_macro
+#PBS -l select=1:ncpus=4:mem=64gb
+#PBS -l walltime=06:00:00
+#PBS -o logs/fgsea_macrophage_subtypes_HA_vs_other_out.log
+#PBS -e logs/fgsea_macrophage_subtypes_HA_vs_other_err.log
+#PBS -m abe
+
+######################################
+### Macrophage subtype ranked GSEA ###
+######################################
+
+set -euo pipefail
+
+project_root="${HOME}/Thema_R"
+
+cd "$project_root"
+
+eval "$(conda shell.bash hook)"
+conda activate thema_r_env
+
+Rscript src/14c_fgsea_macrophage_subtypes_ha_vs_other.R

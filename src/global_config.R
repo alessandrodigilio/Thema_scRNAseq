@@ -1,65 +1,86 @@
-# ---------------------------------------
-# global_config.R
-# Project-wide configuration file
-# ---------------------------------------
+##################################
+### Project-wide configuration ###
+##################################
 
-# Project base directory
-PROJECT_ROOT <- "/data/home/alessandro.digilio/Thema_R"
+# project base directory
+project_root <- path.expand("~/Thema_R")
 
-# Define key directories
-DATA_DIR     <- file.path(PROJECT_ROOT, "data")
-METADATA_DIR <- file.path(PROJECT_ROOT, "metadata")
-SRC_DIR      <- file.path(PROJECT_ROOT, "src")
-RESULTS_DIR  <- file.path(PROJECT_ROOT, "results")
-QC_DIR       <- file.path(RESULTS_DIR, "qc")
-FIGURES_DIR  <- file.path(PROJECT_ROOT, "figures")
-LOGS_DIR     <- file.path(PROJECT_ROOT, "logs")
+# define key directories
+data_dir     <- file.path(project_root, "data")
+metadata_dir <- file.path(project_root, "metadata")
+src_dir      <- file.path(project_root, "src")
+results_dir  <- file.path(project_root, "results")
+qc_dir       <- file.path(results_dir, "qc")
+figures_dir  <- file.path(project_root, "figures")
+logs_dir     <- file.path(project_root, "logs")
 
-# Create directories if missing
-dir.create(DATA_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(RESULTS_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(QC_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(FIGURES_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(LOGS_DIR, recursive = TRUE, showWarnings = FALSE)
+# create directories if missing
+dir.create(data_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(qc_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(figures_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(logs_dir, recursive = TRUE, showWarnings = FALSE)
 
-# GEX-specific directories
-GEX_RAW_DATA_DIR    <- file.path(DATA_DIR, "raw_counts")
-FILTERED_DATA_DIR   <- file.path(DATA_DIR, "filtered_data")
-INTEGRATED_DATA_DIR <- file.path(DATA_DIR, "integrated_object")
-POST_FILTER_QC_DIR  <- file.path(QC_DIR, "post_filtering")
-FILTERING_QC_DIR    <- file.path(QC_DIR, "filtering")
-FILTERING_LOG_DIR   <- file.path(RESULTS_DIR, "logs")
+# data directories for RNA-specific objects
+raw_data_dir    <- file.path(data_dir, "raw_counts")
+filtered_data_dir   <- file.path(data_dir, "filtered_data")
+integrated_data_dir <- file.path(data_dir, "integrated_object")
+post_filter_qc_dir  <- file.path(qc_dir, "post_filtering")
+filtering_qc_dir    <- file.path(qc_dir, "filtering")
+filtering_log_dir   <- file.path(results_dir, "logs")
 
-dir.create(FILTERED_DATA_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(INTEGRATED_DATA_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(POST_FILTER_QC_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(FILTERING_QC_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(FILTERING_LOG_DIR, recursive = TRUE, showWarnings = FALSE)
+dir.create(filtered_data_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(integrated_data_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(post_filter_qc_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(filtering_qc_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(filtering_log_dir, recursive = TRUE, showWarnings = FALSE)
 
-# Project-level sample exclusions
-EXCLUDED_SAMPLES <- character(0)
+# cell-level filtering settings
+scdblfinder_dims <- 20
 
-# Optional cell-level filtering settings
-RUN_SOUPX <- TRUE
-RUN_SCDBLFINDER <- TRUE
-SCDBLFINDER_DIMS <- 20
+# gene set files
+ferroptosis_geneset_file <- file.path(metadata_dir, "iron_genes", "ferroptosis_genes_curated.xlsx")
 
-# Gene set files
-FERROPTOSIS_GENESET_FILE <- file.path(METADATA_DIR, "iron_genes", "ferroptosis_genes_curated.xlsx")
+# pathway name patterns iron-related used in enrichment plots
+iron_related_patterns <- c(
+  "ferropt",
+  "\\biron\\b",
+  "iron ion",
+  "iron uptake",
+  "ferric",
+  "ferrous",
+  "ferritin",
+  "transferrin",
+  "heme",
+  "haem",
+  "hemoglobin",
+  "hepcidin",
+  "reactive oxygen species"
+)
 
-# Integration settings
-BATCH_VAR <- "sample_id"
-N_PCS <- 25
-HARMONY_DIMS <- 1:25
-UMAP_NEIGHBORS <- 50
-UMAP_MIN_DIST <- 0.4
-UMAP_SPREAD <- 1.0
-GRAPH_K_PARAM <- 30
-CLUSTER_RES_GRID <- seq(0.2, 1.0, by = 0.1)
-SELECTED_CLUSTER_RES <- 0.4
+# pathway name patterns fibrosis-related used in enrichment plots
+tgf_beta_patterns <- c(
+  "TGF",
+  "TGFB",
+  "TGF-beta",
+  "Transforming Growth Factor",
+  "Transforming Growth Factor Beta",
+  "SMAD"
+)
 
-# Final manual cluster labels
-GEX_CLUSTER_CELLTYPE <- c(
+# integration settings
+batch_var <- "sample_id"
+n_pcs <- 25
+harmony_dims <- 1:25
+umap_neighbors <- 50
+umap_min_dist <- 0.4
+umap_spread <- 1.0
+graph_k_param <- 30
+cluster_res_grid <- seq(0.2, 1.0, by = 0.1)
+selected_cluster_res <- 0.4
+
+# final manual cluster labels
+cluster_celltype <- c(
   "1"  = "Sublining fibroblasts (SFRP2+)",
   "2"  = "Lining fibroblasts (PRG4+)",
   "3"  = "Inflammatory fibroblasts (ADAM12+)",
@@ -76,7 +97,7 @@ GEX_CLUSTER_CELLTYPE <- c(
   "14" = "Mixed-lineage cells"
 )
 
-# Final cell type colors for annotated UMAPs
+# final cell type colors for annotated UMAPs
 cluster_name_colors <- c(
   "Sublining fibroblasts (SFRP2+)" = "#1F77B4",
   "Lining fibroblasts (PRG4+)" = "#D62728",
@@ -94,7 +115,7 @@ cluster_name_colors <- c(
   "Mixed-lineage cells" = "#F7B6D2"
 )
 
-# Three canonical markers per final cell type for the annotation dotplot
+# three canonical markers per final cell type for the annotation dotplot
 marker_genes <- list(
   "Sublining fibroblasts (SFRP2+)" = c("SFRP2", "COL1A1", "MFAP5"),
   "Lining fibroblasts (PRG4+)" = c("PRG4", "CLIC5", "DEFB1"),

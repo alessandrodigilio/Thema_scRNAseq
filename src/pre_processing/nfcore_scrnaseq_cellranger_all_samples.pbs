@@ -2,53 +2,53 @@
 #PBS -N scrnaseq_THEMA_all
 #PBS -l select=1:ncpus=28:mem=375gb
 #PBS -l walltime=24:00:00
-#PBS -o /data/home/alessandro.digilio/Thema_R/logs/00_GEX_nfcore_scrnaseq_cellranger_all_samples.out
-#PBS -e /data/home/alessandro.digilio/Thema_R/logs/00_GEX_nfcore_scrnaseq_cellranger_all_samples.err
+#PBS -o logs/00_nfcore_scrnaseq_cellranger_all_samples.out
+#PBS -e logs/00_nfcore_scrnaseq_cellranger_all_samples.err
 
-# Run nf-core/scrnaseq with Cell Ranger for the full THEMA cohort
+#############################################################
+### NF-core alignment and quantification with Cell Ranger ###
+#############################################################
+
+# run nf-core/scrnaseq with Cell Ranger for the full cohort
 set -euo pipefail
 
-# Load conda and activate the environment containing Nextflow
-. /data/apps/anaconda/2024.10.01/etc/profile.d/conda.sh
-conda activate nextflow_env
+# load conda with Nextflow env
+eval "$(conda shell.bash hook)"
+conda activate nextflow_env # not part of env in "env/" folder
 
-# Repository containing the tracked samplesheet and downstream analysis scripts
-REPO_DIR="/data/home/alessandro.digilio/Thema_R"
+# repository containing the tracked samplesheet and downstream analysis scripts
+repo_dir="${HOME}/Thema_R"
 
-# Main working directory for the nf-core/scrnaseq run
-RUN_DIR="/data/bioinfo/FP/scRNA/Thema/HA_scRNA_membrane_old"
+# wd for the nf-core/scrnaseq run
+run_dir="${HOME}/nfcore_runs/HA_scRNA_membrane"
 
 # Samplesheet with all FASTQ files from the full cohort
-SAMPLESHEET="${REPO_DIR}/metadata/samplesheets/scRNA_samplesheet_all_samples.csv"
+samplesheet="${repo_dir}/metadata/samplesheets/scRNA_samplesheet_all_samples.csv"
 
-# Output, work and log directories
-OUTDIR="${RUN_DIR}/results"
-WORK_DIR="${RUN_DIR}/work"
+# directories
+outdir="${run_dir}/results"
+work_dir="${run_dir}/work"
+# singularity cache directory
+export NXF_SINGULARITY_CACHEDIR="${work_dir}/singularity_cache"
 
-# Singularity executable and cache directory
-export PATH="/data/apps/singularity/4.1.4/bin:${PATH}"
-export NXF_SINGULARITY_CACHEDIR="${WORK_DIR}/singularity_cache"
+# reference genome used for alignment and gene quantification
+fasta="${run_dir}/ref/gencode/GRCh38.primary_assembly.genome.fa"
+gtf="${run_dir}/ref/gencode/gencode.v46.annotation.gtf.gz"
 
-# Reference genome used for alignment and gene quantification
-FASTA="${RUN_DIR}/ref/gencode/GRCh38.primary_assembly.genome.fa"
-GTF="${RUN_DIR}/ref/gencode/gencode.v46.annotation.gtf.gz"
+# create directories required by Nextflow
+mkdir -p "${outdir}" "${work_dir}" "${NXF_SINGULARITY_CACHEDIR}"
+cd "${run_dir}"
 
-# Create directories required by Nextflow before starting the run
-mkdir -p "${OUTDIR}" "${WORK_DIR}" "${NXF_SINGULARITY_CACHEDIR}"
-
-# Move to the run directory so Nextflow files are written in one place
-cd "${RUN_DIR}"
-
-# Run nf-core/scrnaseq with Cell Ranger on all samples
+# run nf-core/scrnaseq with Cell Ranger on all samples
 nextflow run nf-core/scrnaseq \
   -r 4.0.0 \
   -profile singularity \
-  -work-dir "${WORK_DIR}" \
-  --input "${SAMPLESHEET}" \
-  --outdir "${OUTDIR}" \
+  -work-dir "${work_dir}" \
+  --input "${samplesheet}" \
+  --outdir "${outdir}" \
   --genome hg38 \
   --aligner cellranger \
-  --fasta "${FASTA}" \
-  --gtf "${GTF}" \
+  --fasta "${fasta}" \
+  --gtf "${gtf}" \
   --save_align_intermeds true \
   --skip_cellbender true
