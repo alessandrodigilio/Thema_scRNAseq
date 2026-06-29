@@ -37,7 +37,6 @@ min_detected_cell_fraction <- 0.05
 padj_thr <- 0.05
 top_n_labels <- 15
 log2fc_plot_limit <- 5 # avoid extreme log2FC values for the volcanoplot
-remove_mt_genes <- FALSE
 
 # load final annotated object
 cat("Loading final annotated object...\n")
@@ -79,8 +78,7 @@ for (cell_type in cell_types) {
     min_cells_per_sample = min_cells_per_sample,
     min_pseudobulk_count = min_pseudobulk_count,
     min_detected_cell_fraction = min_detected_cell_fraction,
-    padj_thr = padj_thr,
-    remove_mt_genes = remove_mt_genes
+    padj_thr = padj_thr
   )
 
   summary_rows[[cell_type]] <- out$summary

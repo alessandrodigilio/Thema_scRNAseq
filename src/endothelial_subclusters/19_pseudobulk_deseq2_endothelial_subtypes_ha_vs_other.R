@@ -69,7 +69,6 @@ min_detected_cell_fraction <- 0.05
 padj_thr <- 0.05
 top_n_labels <- 15
 log2fc_plot_limit <- 5
-remove_mt_genes <- FALSE
 iron_gene_files <- c(
   file.path(metadata_dir, "iron_genes", "ferroptosis_genes_curated.xlsx"),
   file.path(metadata_dir, "iron_genes", "iron_uptake_transport_genes.xlsx")
@@ -148,7 +147,6 @@ print(table(meta_df$sample_id, meta_df$condition))
 cat("Minimum cells per sample x endothelial subtype:", min_cells_per_sample, "\n")
 cat("Gene filter: count >=", min_pseudobulk_count, "in at least smallest group size\n")
 cat("Gene filter: detected in >=", min_detected_cell_fraction * 100, "% cells in at least smallest group size\n", sep = "")
-cat("Remove MT genes:", remove_mt_genes, "\n")
 
 endothelial_subtypes <- names(endothelial_subtype_colors)
 endothelial_subtypes <- endothelial_subtypes[endothelial_subtypes %in% unique(meta_df$endothelial_subtype)]
@@ -234,10 +232,6 @@ for (ct in endothelial_subtypes) {
 
   keep_genes <- rowSums(pb_counts >= min_pseudobulk_count) >= smallest_group_size &
     rowSums(detected_fraction >= min_detected_cell_fraction) >= smallest_group_size
-
-  if (remove_mt_genes) {
-    keep_genes <- keep_genes & !grepl("^MT-", rownames(pb_counts))
-  }
 
   cat("Genes before filtering:", nrow(pb_counts), "\n")
   cat("Genes after filtering :", sum(keep_genes), "\n")

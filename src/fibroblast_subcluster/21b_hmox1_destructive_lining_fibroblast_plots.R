@@ -20,7 +20,7 @@ res_dir <- file.path(results_dir, "destructive_lining_fibroblast_final_annotatio
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 
 # set parameters
-gene_to_plot <- "HMOX1"
+target_gene <- "HMOX1"
 cluster_col <- "destructive_lining_fibroblast_subcluster"
 label_col <- "destructive_lining_fibroblast_subtype"
 reduction_name <- "umap.harmony.destructive.lining.fibroblast"
@@ -65,8 +65,8 @@ if (is.null(rna_data_layer) || length(rna_data_layer@x) == 0) {
   obj <- NormalizeData(obj, assay = "RNA", verbose = FALSE)
 }
 
-if (!gene_to_plot %in% rownames(obj)) {
-  stop("Gene not found in object: ", gene_to_plot)
+if (!target_gene %in% rownames(obj)) {
+  stop("Gene not found in object: ", target_gene)
 }
 
 # apply the same final labels used in script 22
@@ -84,7 +84,7 @@ cat("Subtypes:\n")
 print(table(obj@meta.data[[label_col]], useNA = "ifany"))
 
 # save a compact HMOX1 expression summary by subtype
-plot_df <- FetchData(obj, vars = c(gene_to_plot, label_col))
+plot_df <- FetchData(obj, vars = c(target_gene, label_col))
 colnames(plot_df) <- c("expression", "subtype")
 summary_df <- aggregate(
   expression ~ subtype,
@@ -107,7 +107,7 @@ print(summary_out)
 # featurePlot for HMOX1
 p_feature <- FeaturePlot(
   object = obj,
-  features = gene_to_plot,
+  features = target_gene,
   reduction = reduction_name,
   raster = FALSE,
   order = TRUE,
@@ -139,7 +139,7 @@ ggsave(
 # dotplot for HMOX1 across final subtypes
 p_dot <- DotPlot(
   object = obj,
-  features = gene_to_plot,
+  features = target_gene,
   group.by = label_col,
   cols = c("#E8E2DC", "#7A1F2B"),
   dot.scale = 8,

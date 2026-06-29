@@ -3,9 +3,8 @@
 ################################
 
 # subset the annotated object to the main macrophage populations,
-# rerun dimensional reduction and clustering on the subset, compute
-# subcluster markers, write review tables and save an updated object
-# with a second macrophage-specific annotation layer.
+# rerun dimensional reduction and clustering on the subset and compute
+# subcluster markers with a second macrophage-specific annotation layer
 
 suppressPackageStartupMessages({
   library(Seurat)
@@ -16,19 +15,18 @@ suppressPackageStartupMessages({
   library(harmony)
 })
 
-# work from the project root
+# wd
 setwd("~/Thema_R")
 source("src/global_config.R")
+source("src/atlas/utils.R")
+source("src/macrophage_subclusters/utils.R")
 
-# create output directories used by this step
+# directories
 input_object <- file.path(data_dir, "integrated_object", "annotated.rds")
-
 out_dir <- file.path(data_dir, "integrated_object")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-
 fig_dir <- file.path(figures_dir, "macrophage_subclustering")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
-
 res_dir <- file.path(results_dir, "macrophage_subclustering")
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -51,67 +49,10 @@ cluster_res_grid_macro <- seq(0.2, 0.8, by = 0.1)
 selected_cluster_res_macro <- 0.3
 min_pct <- 0.25
 logfc_thr <- 0.25
-n_save <- 5
 n_review_markers <- 3
 n_top_labels_review <- 3
 
-iron_markers <- c(
-  "HMOX1", "SLC40A1", "TFRC", "STEAP3", "FTH1", "FTL",
-  "SLC11A2", "CP", "NCOA4", "GPX4", "ACSL4", "AIFM2",
-  "NQO1", "GCLC", "GCLM", "ALOX5", "ALOX15", "SAT1"
-)
-
 set.seed(1234)
-
-sort_cluster_levels <- function(x) {
-  x <- unique(as.character(x))
-  suppressWarnings(x_num <- as.integer(x))
-  if (all(!is.na(x_num))) return(as.character(sort(x_num)))
-  sort(x)
-}
-
-summarize_label_composition <- function(meta_df, cluster_col, label_col, prefix, n_top = 3) {
-  if (!label_col %in% colnames(meta_df)) return(NULL)
-
-  df <- meta_df %>%
-    filter(!is.na(.data[[label_col]]) & trimws(.data[[label_col]]) != "") %>%
-    group_by(.data[[cluster_col]], .data[[label_col]]) %>%
-    summarise(n = n(), .groups = "drop") %>%
-    group_by(.data[[cluster_col]]) %>%
-    mutate(freq = n / sum(n)) %>%
-    arrange(.data[[cluster_col]], desc(freq), desc(n)) %>%
-    mutate(rank = row_number()) %>%
-    filter(rank <= n_top) %>%
-    ungroup()
-
-  if (nrow(df) == 0) return(NULL)
-
-  label_wide <- data.frame(
-    cluster_id = as.character(df[[cluster_col]]),
-    rank = df$rank,
-    value = as.character(df[[label_col]]),
-    stringsAsFactors = FALSE
-  ) %>%
-    pivot_wider(
-      names_from = rank,
-      values_from = value,
-      names_glue = paste0(prefix, "_top{rank}_label")
-    )
-
-  freq_wide <- data.frame(
-    cluster_id = as.character(df[[cluster_col]]),
-    rank = df$rank,
-    value = df$freq,
-    stringsAsFactors = FALSE
-  ) %>%
-    pivot_wider(
-      names_from = rank,
-      values_from = value,
-      names_glue = paste0(prefix, "_top{rank}_freq")
-    )
-
-  left_join(label_wide, freq_wide, by = "cluster_id")
-}
 
 # load annotated object
 if (!file.exists(input_object)) {
@@ -195,6 +136,7 @@ cluster_summary <- data.frame(
   stringsAsFactors = FALSE
 )
 
+# run clustering for each resolution and summarize the number of clusters
 for (i in seq_along(cluster_res_grid_macro)) {
   res_here <- cluster_res_grid_macro[i]
   obj <- FindClusters(
@@ -207,14 +149,16 @@ for (i in seq_along(cluster_res_grid_macro)) {
   cluster_col_here <- paste0("RNA_snn_res.", res_here)
   cluster_summary$n_clusters[i] <- length(unique(obj@meta.data[[cluster_col_here]]))
 }
-
+# save res summary to decide
 write.csv(cluster_summary, file.path(res_dir, "macrophage_cluster_resolution_summary.csv"), row.names = FALSE)
 
+# set the selected clustering resolution and update the Seurat object
 selected_cluster_col <- paste0("RNA_snn_res.", selected_cluster_res_macro)
 if (!selected_cluster_col %in% colnames(obj@meta.data)) {
   stop("Selected clustering column not found: ", selected_cluster_col)
 }
 
+# update the cluster column
 obj[[cluster_col]] <- as.character(obj@meta.data[[selected_cluster_col]])
 cluster_levels <- sort_cluster_levels(obj@meta.data[[cluster_col]])
 Idents(obj) <- factor(obj@meta.data[[cluster_col]], levels = cluster_levels)
@@ -231,17 +175,17 @@ markers <- FindAllMarkers(
   verbose = FALSE
 )
 
+# print summary of marker genes found
 cat("Total marker genes found:", nrow(markers), "\n")
-
+# save all markers
 write.csv(markers, file.path(res_dir, "all_markers_macrophage_subclusters.csv"), row.names = FALSE)
-
+# top markers
 top_markers_save <- markers %>%
   group_by(cluster) %>%
-  slice_max(order_by = avg_log2FC, n = n_save, with_ties = FALSE) %>%
+  slice_max(order_by = avg_log2FC, n = 5, with_ties = FALSE) %>% # top 5 markers per cluster
   ungroup()
-
+# save top 5 markers 
 write.csv(top_markers_save, file.path(res_dir, "top_markers_per_macrophage_subcluster.csv"), row.names = FALSE)
-
 top_markers_review <- markers %>%
   group_by(cluster) %>%
   slice_max(order_by = avg_log2FC, n = n_review_markers, with_ties = FALSE) %>%
@@ -252,11 +196,11 @@ top_markers_review$cluster <- as.character(top_markers_review$cluster)
 cluster_counts <- obj@meta.data %>%
   count(.data[[cluster_col]], name = "n_cells")
 cluster_counts[[cluster_col]] <- as.character(cluster_counts[[cluster_col]])
-
 cluster_review <- data.frame(cluster_id = cluster_levels, stringsAsFactors = FALSE) %>%
   left_join(cluster_counts, by = c("cluster_id" = cluster_col)) %>%
   left_join(top_markers_review, by = c("cluster_id" = "cluster"))
 
+# add metadata composition summaries for each cluster
 for (meta_col in c("cell_type", "sample_id", "condition_all", "condition", "sex")) {
   meta_top <- summarize_label_composition(
     meta_df = obj@meta.data,
@@ -271,9 +215,10 @@ for (meta_col in c("cell_type", "sample_id", "condition_all", "condition", "sex"
       left_join(meta_top, by = "cluster_id")
   }
 }
-
+# save
 write.csv(cluster_review, file.path(res_dir, "macrophage_subcluster_review_table.csv"), row.names = FALSE)
 
+# create a template for manual labeling of macrophage subclusters
 if (!file.exists(manual_labels_file)) {
   manual_template <- cluster_review %>%
     transmute(
@@ -297,12 +242,10 @@ obj_full$macrophage_subcluster <- NA_character_
 obj_full$macrophage_subcluster[Cells(obj)] <- as.character(obj$macrophage_subcluster)
 obj_full$macrophage_parent_type <- NA_character_
 obj_full$macrophage_parent_type[Cells(obj)] <- as.character(obj$cell_type)
-
-saveRDS(obj_full, output_full_object)
+saveRDS(obj_full, output_full_object) # updated full object with macrophage subcluster layer
 
 # review plots
 cat("\nPlotting macrophage subcluster review panels...\n")
-
 review_plots <- list(
   DimPlot(
     object = obj,
@@ -322,6 +265,7 @@ review_plots <- list(
   ) + ggtitle("Parent macrophage types")
 )
 
+# add additional metadata columns for review 
 for (plot_col in c("sample_id", "condition")) {
   if (plot_col %in% colnames(obj@meta.data)) {
     review_plots[[length(review_plots) + 1]] <- DimPlot(
@@ -336,7 +280,7 @@ for (plot_col in c("sample_id", "condition")) {
 }
 
 p_review <- wrap_plots(review_plots, ncol = 2)
-
+# save
 ggsave(
   file.path(fig_dir, "macrophage_subclusters_review.png"),
   p_review,
@@ -389,7 +333,7 @@ if (length(review_features) > 0) {
 }
 
 # dotplot focused on iron-related genes
-iron_features <- iron_markers[iron_markers %in% rownames(obj)]
+iron_features <- macrophage_iron_features[macrophage_iron_features %in% rownames(obj)] # defined in global_config.R
 
 if (length(iron_features) > 0) {
   p_iron_dot <- DotPlot(

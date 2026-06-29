@@ -35,6 +35,10 @@ dir.create(post_filter_qc_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(filtering_qc_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(filtering_log_dir, recursive = TRUE, showWarnings = FALSE)
 
+###########################
+### shared input files ###
+###########################
+
 # cell-level filtering settings
 scdblfinder_dims <- 20
 
@@ -67,6 +71,10 @@ tgf_beta_patterns <- c(
   "Transforming Growth Factor Beta",
   "SMAD"
 )
+
+######################
+### atlas settings ###
+######################
 
 # integration settings
 batch_var <- "sample_id"
@@ -131,4 +139,59 @@ marker_genes <- list(
   "Stress-response cells" = c("HSPA6", "HSPA1A", "DNAJB1"),
   "cDC2" = c("CD1C", "FCER1A", "CLEC10A"),
   "Mixed-lineage cells" = c("RNASE1", "C1QA", "CSN1S1")
+)
+
+##########################################
+### macrophage annotation information ###
+##########################################
+
+# final macrophage subtype labels
+macrophage_subcluster_labels <- c(
+  "0" = "Inflammatory macrophages (KANK1+)",
+  "1" = "Inflammatory macrophages (THBS1+)",
+  "2" = "Macrophage-like state (AMTN+)",
+  "3" = "Resident macrophages (HSPA6+)",
+  "4" = "Red-pulp-like resident macrophages (MERTK+)",
+  "5" = "Mixed macrophage-like cells (RNASE1+)",
+  "6" = "Plasma-like contaminants",
+  "7" = "Low-confidence cells",
+  "8" = "Proliferating macrophages"
+)
+
+# final macrophage subtype colors
+macrophage_subtype_colors <- c(
+  "Inflammatory macrophages (KANK1+)" = "#C65A5A",
+  "Inflammatory macrophages (THBS1+)" = "#b0e17b",
+  "Macrophage-like state (AMTN+)" = "#D98F5C",
+  "Resident macrophages (HSPA6+)" = "#8c674b",
+  "Red-pulp-like resident macrophages (MERTK+)" = "#4C9F8A",
+  "Mixed macrophage-like cells (RNASE1+)" = "#5f90b3",
+  "Plasma-like contaminants" = "#B58ACF",
+  "Low-confidence cells" = "#9FA4A9",
+  "Proliferating macrophages" = "#D95FA7"
+)
+
+# canonical markers used to annotate macrophage subtypes
+marker_genes_macrophage <- list(
+  "Inflammatory macrophages (KANK1+)" = c("KANK1", "KHDRBS3", "BAALC"),
+  "Inflammatory macrophages (THBS1+)" = c("THBS1", "IL2RA", "TNIP3"),
+  "Macrophage-like state (AMTN+)" = c("AMTN", "SULF1", "ITGBL1"),
+  "Resident macrophages (HSPA6+)" = c("HSPA6", "HSPE1-MOB4", "ENSG00000293472"),
+  "Red-pulp-like resident macrophages (MERTK+)" = c("MERTK", "CD163", "FCGR3A"),
+  "Mixed macrophage-like cells (RNASE1+)" = c("RNASE1", "CRIP1", "HCST"),
+  "Plasma-like contaminants" = c("IGHA1", "MZB1", "IGKC"),
+  "Low-confidence cells" = c("CCDC200", "RNU5B-1", "ENSG00000285646"),
+  "Proliferating macrophages" = c("MKI67", "UBE2C", "CDCA3")
+)
+
+# iron and red-pulp-like marker panels
+macrophage_iron_features <- c(
+  "SPIC", "HMOX1", "SLC40A1", "TFRC", "STEAP3", "FTH1", "FTL",
+  "SLC11A2", "CP", "NCOA4", "GPX4", "ACSL4", "AIFM2",
+  "NQO1", "GCLC", "GCLM", "ALOX5", "ALOX15", "SAT1"
+)
+
+red_pulp_like_features <- c(
+  "CD163", "CD14", "FCGR2A", "FCGR3A", "FCGR2B",
+  "CYBB", "SLC48A1", "HMOX1", "SLC40A1"
 )

@@ -19,11 +19,11 @@ fig_dir <- file.path(figures_dir, "endothelial_gene_violin")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
 # set parameters
-gene_to_plot <- "HMOX1"
+target_gene <- "HMOX1"
 group_col <- "condition"
 sample_col <- "sample_id"
 subtype_col <- "endothelial_subtype"
-target_subtype <- "Stress-response endothelial cells (HSPA6+)"
+stress_response_subtype <- "Stress-response endothelial cells (HSPA6+)"
 group_levels <- c("other", "HA")
 group_colors <- c("other" = "#B65A5A", "HA" = "#5B8DB8")
 box_alpha <- 0.9
@@ -58,21 +58,21 @@ if (is.null(rna_data_layer) || length(rna_data_layer@x) == 0) {
   obj <- NormalizeData(obj, assay = "RNA", verbose = FALSE)
 }
 
-if (!gene_to_plot %in% rownames(obj)) {
-  stop("Gene not found in object: ", gene_to_plot)
+if (!target_gene %in% rownames(obj)) {
+  stop("Gene not found in object: ", target_gene)
 }
 
 # keep only the target endothelial subtype
-cells_use <- rownames(obj@meta.data)[obj@meta.data[[subtype_col]] == target_subtype]
+cells_use <- rownames(obj@meta.data)[obj@meta.data[[subtype_col]] == stress_response_subtype]
 if (length(cells_use) == 0) {
-  stop("No cells found for subtype: ", target_subtype)
+  stop("No cells found for subtype: ", stress_response_subtype)
 }
 
 obj_sub <- subset(obj, cells = cells_use)
 cat("Cells in target subtype:", ncol(obj_sub), "\n")
 
 # prepare sample-level plotting data
-plot_df <- FetchData(obj_sub, vars = c(gene_to_plot, group_col, sample_col))
+plot_df <- FetchData(obj_sub, vars = c(target_gene, group_col, sample_col))
 colnames(plot_df) <- c("expression", "condition", "sample_id")
 plot_df$condition <- ifelse(as.character(plot_df$condition) == "HA", "HA", "other")
 plot_df <- plot_df[
@@ -108,7 +108,7 @@ p_box <- ggplot(sample_df, aes(x = condition, y = expression, fill = condition))
   ) +
   scale_fill_manual(values = group_colors) +
   labs(
-    title = paste0(gene_to_plot, " in ", target_subtype),
+    title = paste0(target_gene, " in ", stress_response_subtype),
     x = NULL,
     y = "Mean norm. expression per sample"
   ) +
@@ -136,7 +136,7 @@ ggsave(
 
 cat("\n============================================================\n")
 cat("Boxplot complete.\n")
-cat("Subtype : ", target_subtype, "\n")
-cat("Gene    : ", gene_to_plot, "\n")
+cat("Subtype : ", stress_response_subtype, "\n")
+cat("Gene    : ", target_gene, "\n")
 cat("Output  : ", output_file, "\n")
 cat("============================================================\n")

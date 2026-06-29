@@ -63,7 +63,12 @@ src/atlas/05_celltype_composition_ha_vs_other.R
 src/atlas/06_pseudobulk_deseq2_ha_vs_other.R
 src/atlas/07_enrichment_ha_vs_other.R
 src/atlas/08_ferroptosis_ha_vs_other.R
-src/macrophage_subclusters/10-14: macrophage subclustering and downstream analyses
+src/macrophage_subclusters/00_subclustering.R
+src/macrophage_subclusters/01_annotation.R
+src/macrophage_subclusters/02_subtype_composition_ha_vs_other.R
+src/macrophage_subclusters/03_pseudobulk_deseq2_ha_vs_other.R
+src/macrophage_subclusters/04_gsea_ha_vs_other.R
+src/macrophage_subclusters/05_ferroptosis_ha_vs_other.R
 src/endothelial_subclusters/15-19: endothelial subclustering and downstream analyses
 src/fibroblast_subcluster/20-24: destructive lining fibroblast subclustering and downstream analyses
 src/trajectory_analysis/monocle3_trajectory_analysis.R

@@ -397,8 +397,7 @@ make_pseudobulk_counts <- function(rna_counts,
                                    coldata,
                                    smallest_group_size,
                                    min_pseudobulk_count,
-                                   min_detected_cell_fraction,
-                                   remove_mt_genes = FALSE) {
+                                   min_detected_cell_fraction) {
   pb_counts <- matrix(0, nrow = nrow(rna_counts), ncol = nrow(coldata), dimnames = list(rownames(rna_counts), rownames(coldata)))
   detected_fraction <- pb_counts
 
@@ -411,8 +410,6 @@ make_pseudobulk_counts <- function(rna_counts,
 
   keep_genes <- rowSums(pb_counts >= min_pseudobulk_count) >= smallest_group_size &
     rowSums(detected_fraction >= min_detected_cell_fraction) >= smallest_group_size
-
-  if (remove_mt_genes) keep_genes <- keep_genes & !grepl("^MT-", rownames(pb_counts))
 
   list(
     counts = round(pb_counts[keep_genes, , drop = FALSE]),
@@ -431,8 +428,7 @@ run_pseudobulk_deseq2_celltype <- function(cell_type,
                                            min_cells_per_sample,
                                            min_pseudobulk_count,
                                            min_detected_cell_fraction,
-                                           padj_thr,
-                                           remove_mt_genes = FALSE) {
+                                           padj_thr) {
   safe_ct <- safe_name(cell_type)
   meta_ct <- meta_df[meta_df$cell_type == cell_type, , drop = FALSE]
 
@@ -458,8 +454,7 @@ run_pseudobulk_deseq2_celltype <- function(cell_type,
     coldata = coldata,
     smallest_group_size = smallest_group_size,
     min_pseudobulk_count = min_pseudobulk_count,
-    min_detected_cell_fraction = min_detected_cell_fraction,
-    remove_mt_genes = remove_mt_genes
+    min_detected_cell_fraction = min_detected_cell_fraction
   )
 
   if (pb$n_genes_after == 0) {
