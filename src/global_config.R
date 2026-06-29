@@ -44,6 +44,8 @@ scdblfinder_dims <- 20
 
 # gene set files
 ferroptosis_geneset_file <- file.path(metadata_dir, "iron_genes", "ferroptosis_genes_curated.xlsx")
+iron_uptake_geneset_file <- file.path(metadata_dir, "iron_genes", "iron_uptake_transport_genes.xlsx")
+iron_related_geneset_files <- c(ferroptosis_geneset_file, iron_uptake_geneset_file)
 
 # pathway name patterns iron-related used in enrichment plots
 iron_related_patterns <- c(

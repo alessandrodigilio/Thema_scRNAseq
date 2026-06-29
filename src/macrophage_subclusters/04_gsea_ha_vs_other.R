@@ -26,13 +26,6 @@ dir.create(fgsea_table_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(fgsea_iron_table_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(fgsea_curve_dir, recursive = TRUE, showWarnings = FALSE)
 
-# set parameters
-padj_thr <- 0.05
-min_size <- 5
-max_size <- 500
-fgsea_seed <- 1234
-msigdb_species <- "Homo sapiens"
-
 # load tested macrophage subtype pseudobulk results
 summary_file <- file.path(pseudobulk_res_dir, "deseq2_pseudobulk_summary_by_macrophage_subtype.csv")
 summary_df <- read.csv(summary_file, stringsAsFactors = FALSE)
@@ -41,7 +34,7 @@ if (!"cell_type" %in% colnames(summary_df)) summary_df$cell_type <- summary_df$m
 
 # run fgsea
 cat("Loading MSigDB pathways...\n")
-pathway_data <- load_msigdb_pathways(msigdb_species)
+pathway_data <- load_msigdb_pathways("Homo sapiens")
 
 cat("Running macrophage subtype fgsea...\n")
 run_fgsea_pseudobulk(
@@ -53,10 +46,10 @@ run_fgsea_pseudobulk(
   pathways = pathway_data$pathways,
   pathway_info = pathway_data$pathway_info,
   iron_related_patterns = iron_related_patterns,
-  padj_thr = padj_thr,
-  min_size = min_size,
-  max_size = max_size,
-  fgsea_seed = fgsea_seed
+  padj_thr = 0.05,
+  min_size = 5,
+  max_size = 500,
+  fgsea_seed = 1234
 )
 
 cat("\n============================================================\n")

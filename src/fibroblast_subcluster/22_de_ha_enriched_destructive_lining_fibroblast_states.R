@@ -62,10 +62,7 @@ destructive_lining_fibroblast_subcluster_labels <- c(
   "5" = "HA-enriched SFRP2+ matrix fibroblast-like cells"
 )
 
-iron_gene_files <- c(
-  file.path(metadata_dir, "iron_genes", "ferroptosis_genes_curated.xlsx"),
-  file.path(metadata_dir, "iron_genes", "iron_uptake_transport_genes.xlsx")
-)
+iron_gene_files <- iron_related_geneset_files
 
 selected_genes <- c(
   "HMOX1", "NQO1", "FTL", "FTH1", "CP", "SLC40A1", "TFRC",

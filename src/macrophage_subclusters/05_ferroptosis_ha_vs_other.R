@@ -44,11 +44,12 @@ obj <- prepare_rna_assay_for_scoring(obj)
 ferroptosis_genes <- load_excel_gene_list(geneset_file, include_column_names = FALSE)
 genes_use <- intersect(ferroptosis_genes, rownames(obj))
 
+# check
 cat("Ferroptosis genes in metadata:", length(ferroptosis_genes), "\n")
 cat("Ferroptosis genes found in macrophage subset:", length(genes_use), "\n")
-
 if (length(genes_use) == 0) stop("No ferroptosis genes were found in the macrophage subset.")
 
+# compute ferroptosis score and add HA vs other condition label
 obj <- add_ferroptosis_score(obj, genes_use, score_col)
 obj$HA_vs_other <- ifelse(as.character(obj@meta.data[[group_col]]) == ha_label, "HA", "other")
 obj$HA_vs_other <- factor(obj$HA_vs_other, levels = c("HA", "other"))
@@ -58,7 +59,7 @@ score_max <- max(obj[[score_col]][, 1], na.rm = TRUE)
 global_summary <- summarize_score_by(obj@meta.data, score_col, "HA_vs_other")
 subtype_summary <- summarize_score_by(obj@meta.data, score_col, c(label_col, "HA_vs_other"))
 sample_summary <- summarize_score_by(obj@meta.data, score_col, c("sample_id", label_col, "HA_vs_other"))
-
+# save
 write.csv(global_summary, file.path(res_dir, "ferroptosis_score_global_HA_vs_other.csv"), row.names = FALSE)
 write.csv(subtype_summary, file.path(res_dir, "ferroptosis_score_by_macrophage_subtype_HA_vs_other.csv"), row.names = FALSE)
 write.csv(sample_summary, file.path(res_dir, "ferroptosis_score_by_sample_macrophage_subtype_HA_vs_other.csv"), row.names = FALSE)
@@ -67,7 +68,7 @@ write.csv(sample_summary, file.path(res_dir, "ferroptosis_score_by_sample_macrop
 cat("Plotting ferroptosis score UMAPs...\n")
 p_score <- make_score_umap(obj, score_col, reduction_name, score_colors, score_max)
 p_score_split <- make_score_umap(obj, score_col, reduction_name, score_colors, score_max, split_by = "HA_vs_other")
-
+# save plots
 ggsave(file.path(fig_dir, "umap_ferroptosis_score_macrophage_subtypes.png"), p_score, width = 8, height = 7, dpi = 600)
 ggsave(file.path(fig_dir, "umap_ferroptosis_score_macrophage_subtypes_split_HA_vs_other.png"), p_score_split, width = 14, height = 7, dpi = 600)
 

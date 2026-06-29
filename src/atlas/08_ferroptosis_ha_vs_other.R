@@ -26,10 +26,7 @@ dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
 # parameters
 geneset_file <- ferroptosis_geneset_file # in global_config.R
-iron_gene_files <- c(
-  ferroptosis_geneset_file,
-  file.path(metadata_dir, "iron_genes", "iron_uptake_transport_genes.xlsx")
-)
+iron_gene_files <- iron_related_geneset_files # in global_config.R
 
 summary_file <- file.path(pseudobulk_res_dir, "deseq2_pseudobulk_summary_by_celltype.csv")
 reduction_name <- "umap.harmony.rna"

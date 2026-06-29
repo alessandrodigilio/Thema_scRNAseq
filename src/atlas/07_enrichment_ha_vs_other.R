@@ -38,13 +38,6 @@ for (dir_here in c( # loop for dir creation
   dir.create(dir_here, recursive = TRUE, showWarnings = FALSE)
 }
 
-# set fgsea parameters
-padj_thr <- 0.05
-min_size <- 5
-max_size <- 500
-fgsea_seed <- 1234
-msigdb_species <- "Homo sapiens"
-
 # set Enrichr parameters
 min_degs_per_celltype <- 30 # we consider an enrichment significant when we have more than 30 degs
 selected_celltypes <- c(
@@ -73,7 +66,7 @@ summary_df <- summary_df[summary_df$status == "tested", , drop = FALSE]
 
 # run ranked fgsea using all genes from each DESeq2 table
 cat("Loading MSigDB pathways...\n")
-pathway_data <- load_msigdb_pathways(msigdb_species)
+pathway_data <- load_msigdb_pathways("Homo sapiens")
 
 cat("Running fgsea...\n")
 run_fgsea_pseudobulk(
@@ -85,10 +78,10 @@ run_fgsea_pseudobulk(
   pathways = pathway_data$pathways,
   pathway_info = pathway_data$pathway_info,
   iron_related_patterns = iron_related_patterns, # in global_config.R
-  padj_thr = padj_thr,
-  min_size = min_size,
-  max_size = max_size,
-  fgsea_seed = fgsea_seed
+  padj_thr = 0.05,
+  min_size = 5,
+  max_size = 500,
+  fgsea_seed = 1234
 )
 
 # run Enrichr using significant genes from each DESeq2 table
@@ -102,7 +95,7 @@ run_enrichr_pseudobulk(
   dbs = dbs,
   db_labels = db_labels,
   min_degs_per_celltype = min_degs_per_celltype,
-  padj_cutoff = padj_thr,
+  padj_cutoff = 0.05,
   selected_celltypes = selected_celltypes,
   iron_related_patterns = iron_related_patterns, # in global_config.R
   tgf_beta_patterns = tgf_beta_patterns # in global_config.R

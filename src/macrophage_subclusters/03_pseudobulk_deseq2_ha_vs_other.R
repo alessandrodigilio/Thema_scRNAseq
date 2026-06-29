@@ -44,11 +44,7 @@ top_n_labels <- 15
 log2fc_plot_limit <- 5
 target_gene <- "SLC40A1"
 red_pulp_subtype <- "Red-pulp-like resident macrophages (MERTK+)"
-
-iron_gene_files <- c(
-  ferroptosis_geneset_file,
-  file.path(metadata_dir, "iron_genes", "iron_uptake_transport_genes.xlsx")
-)
+iron_gene_files <- iron_related_geneset_files
 
 # load final macrophage-annotated object
 cat("Loading macrophage-annotated object...\n")
@@ -70,6 +66,7 @@ meta_df$sample_id <- as.character(meta_df$sample_id)
 meta_df$cell_type <- as.character(meta_df$cell_type)
 meta_df <- meta_df[!is.na(meta_df$sample_id) & meta_df$sample_id != "" & !is.na(meta_df$cell_type) & meta_df$cell_type != "", , drop = FALSE]
 
+# macrophage subtype
 macrophage_subtypes <- names(macrophage_subtype_colors)
 macrophage_subtypes <- macrophage_subtypes[macrophage_subtypes %in% unique(meta_df$cell_type)]
 
@@ -78,6 +75,7 @@ cat("Running macrophage subtype pseudobulk DESeq2...\n")
 result_files <- character()
 summary_rows <- list()
 
+# run pseudobulk DESeq2 for each macrophage subtype
 for (subtype in macrophage_subtypes) {
   res <- run_pseudobulk_deseq2_celltype(
     cell_type = subtype,
@@ -96,8 +94,10 @@ for (subtype in macrophage_subtypes) {
   if (!is.na(res$result_file)) result_files <- c(result_files, res$result_file)
 }
 
+# combine summary rows
 summary_df <- do.call(rbind, summary_rows)
 summary_df$macrophage_subtype <- summary_df$cell_type
+# save
 write.csv(summary_df, file.path(res_dir, "deseq2_pseudobulk_summary_by_macrophage_subtype.csv"), row.names = FALSE)
 
 # volcano plots
@@ -118,6 +118,7 @@ iron_genes <- load_excel_gene_list(iron_gene_files)
 iron_results <- scan_iron_genes_in_pseudobulk(summary_df, res_dir, iron_genes, padj_thr)
 p_iron_bubble <- make_iron_gene_bubble_plot(iron_results$significant_hits, summary_df$cell_type)
 
+# save if there are significant iron-related genes
 if (!is.null(p_iron_bubble)) {
   ggsave(
     file.path(fig_dir, "bubble_heatmap_iron_related_significant_genes_macrophage_subtypes.png"),
@@ -132,6 +133,8 @@ if (!is.null(p_iron_bubble)) {
 # --- SLC40A1 expression in red-pulp-like resident macrophages (MERTK+) --- #
 # ------------------------------------------------------------------------- #
 
+# SLC40A1 is a gene that encodes ferroportin, a protein that plays a role in iron export from cells
+
 # plot SLC40A1 in red-pulp-like resident macrophages
 cat("Plotting SLC40A1 in red-pulp-like resident macrophages...\n")
 obj <- prepare_rna_assay_for_scoring(obj)
@@ -145,7 +148,7 @@ slc40a1_plot <- plot_gene_by_sample_in_macrophage_subtype(
   group_levels = group_levels,
   group_colors = group_colors
 )
-
+# save
 write.csv(slc40a1_plot$data, file.path(res_dir, "SLC40A1_red_pulp_like_resident_macrophages_sample_expression.csv"), row.names = FALSE)
 ggsave(file.path(gene_fig_dir, "boxplot_SLC40A1_red_pulp_like_resident_macrophages_HA_vs_other.png"), slc40a1_plot$plot, width = 8, height = 7, dpi = 600)
 

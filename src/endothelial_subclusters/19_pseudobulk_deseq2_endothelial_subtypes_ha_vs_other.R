@@ -69,10 +69,7 @@ min_detected_cell_fraction <- 0.05
 padj_thr <- 0.05
 top_n_labels <- 15
 log2fc_plot_limit <- 5
-iron_gene_files <- c(
-  file.path(metadata_dir, "iron_genes", "ferroptosis_genes_curated.xlsx"),
-  file.path(metadata_dir, "iron_genes", "iron_uptake_transport_genes.xlsx")
-)
+iron_gene_files <- iron_related_geneset_files
 iron_bubble_plot_file <- file.path(fig_dir, "bubble_heatmap_iron_related_significant_genes_endothelial_subtypes.png")
 
 sanitize_label <- function(x) {
