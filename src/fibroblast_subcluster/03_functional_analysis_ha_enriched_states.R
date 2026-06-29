@@ -9,6 +9,7 @@
 # panels for significant iron-related terms.
 
 suppressPackageStartupMessages({
+  library(Seurat)
   library(enrichR)
   library(fgsea)
   library(ggplot2)
@@ -33,6 +34,7 @@ func_fig_dir <- file.path(figures_dir, "functional_analysis_HA_enriched_destruct
 bubble_fig_dir <- file.path(func_fig_dir, "bubble_heatmap")
 fgsea_curve_dir <- file.path(func_fig_dir, "gsea_curves")
 enrichr_fig_dir <- file.path(func_fig_dir, "enrichr_ora")
+tgf_beta_fig_dir <- file.path(func_fig_dir, "TGFbeta_featureplots")
 
 dir.create(func_res_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(fgsea_table_dir, recursive = TRUE, showWarnings = FALSE)
@@ -42,6 +44,7 @@ dir.create(enrichr_selected_table_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(bubble_fig_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(fgsea_curve_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(enrichr_fig_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(tgf_beta_fig_dir, recursive = TRUE, showWarnings = FALSE)
 
 # set parameters
 padj_thr <- 0.05
@@ -50,7 +53,6 @@ max_size <- 500
 fgsea_seed <- 1234
 use_multilevel <- TRUE
 n_permutations <- 10000
-top_n_gsea_curves_per_direction <- 5
 top_n_enrichr_terms <- 10
 run_enrichr_ora <- TRUE
 enrichr_max_tries <- 4
@@ -935,11 +937,67 @@ if (nrow(curve_rows) > 0) {
   }
 }
 
-# add a companion bubble heatmap using significant iron-related DE genes from script 23.
+# add a companion bubble heatmap using significant iron-related DE genes from script 02.
 plot_significant_iron_gene_bubble_heatmap()
 
 # add Enrichr over-representation panels for significant iron-related terms.
 run_enrichr_iron_related_ora(de_df)
+
+# plot TGF-beta-related genes on the destructive lining fibroblast UMAP.
+input_fibroblast_object <- file.path(data_dir, "integrated_object", "destructive_lining_fibroblasts_subclustered.rds")
+reduction_name <- "umap.harmony.destructive.lining.fibroblast"
+
+cat("\nPlotting TGF-beta-related genes in destructive lining fibroblasts...\n")
+obj_fibro <- readRDS(input_fibroblast_object)
+
+DefaultAssay(obj_fibro) <- "RNA"
+obj_fibro <- JoinLayers(obj_fibro, assay = "RNA")
+
+rna_data_layer <- tryCatch(
+  LayerData(obj_fibro[["RNA"]], layer = "data"),
+  error = function(e) NULL
+)
+
+if (is.null(rna_data_layer) || length(rna_data_layer@x) == 0) {
+  obj_fibro <- NormalizeData(obj_fibro, assay = "RNA", verbose = FALSE)
+}
+
+tgf_beta_genes <- tgf_beta_fibroblast_features[tgf_beta_fibroblast_features %in% rownames(obj_fibro)]
+cat("TGF-beta genes found:\n")
+print(tgf_beta_genes)
+
+if (length(tgf_beta_genes) > 0) {
+  p_tgf_beta <- FeaturePlot(
+    object = obj_fibro,
+    features = tgf_beta_genes,
+    reduction = reduction_name,
+    cols = c("#F3F1EC", "#7A1F2B"),
+    order = TRUE,
+    raster = FALSE,
+    pt.size = 0.35,
+    ncol = 4
+  ) &
+    theme_classic(base_size = 18) &
+    theme(
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title = element_text(size = 18, color = "black"),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5, color = "black"),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8),
+      panel.grid = element_blank(),
+      legend.title = element_text(size = 13),
+      legend.text = element_text(size = 12),
+      plot.margin = margin(16, 16, 16, 16)
+    )
+
+  ggsave(
+    filename = file.path(tgf_beta_fig_dir, "featureplot_TGFbeta_destructive_lining_fibroblasts.png"),
+    plot = p_tgf_beta,
+    width = 18,
+    height = 4.2 * ceiling(length(tgf_beta_genes) / 4),
+    dpi = 600
+  )
+}
 
 # save a compact summary table for quick inspection.
 summary_df <- data.frame(
@@ -961,5 +1019,6 @@ cat("Iron-related significant: ", iron_file, "\n")
 cat("Bubble heatmap figures  : ", bubble_fig_dir, "\n")
 cat("GSEA curves             : ", fgsea_curve_dir, "\n")
 cat("Enrichr ORA panels      : ", enrichr_fig_dir, "\n")
+cat("TGF-beta FeaturePlots   : ", tgf_beta_fig_dir, "\n")
 cat("Interpretation          : positive NES = enriched toward HA-enriched DLF states; negative NES = enriched toward other DLF states.\n")
 cat("============================================================\n")

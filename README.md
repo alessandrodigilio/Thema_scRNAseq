@@ -69,8 +69,8 @@ src/macrophage_subclusters/02_subtype_composition_ha_vs_other.R
 src/macrophage_subclusters/03_pseudobulk_deseq2_ha_vs_other.R
 src/macrophage_subclusters/04_gsea_ha_vs_other.R
 src/macrophage_subclusters/05_ferroptosis_ha_vs_other.R
-src/endothelial_subclusters/15-19: endothelial subclustering and downstream analyses
-src/fibroblast_subcluster/20-24: destructive lining fibroblast subclustering and downstream analyses
+src/endothelial_subclusters/00-05: endothelial subclustering and downstream analyses
+src/fibroblast_subcluster/00-03: destructive lining fibroblast subclustering and downstream analyses
 src/trajectory_analysis/monocle3_trajectory_analysis.R
 src/paper_subcluster_umaps.R
 ```
@@ -79,4 +79,4 @@ PBS scripts matching the main analysis steps are available in `src/pbs/`.
 
 ## Notes
 
-This repository is intended to store reproducible analysis code and lightweight metadata only. Large generated files should remain outside version control.
+...

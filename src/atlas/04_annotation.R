@@ -28,10 +28,6 @@ dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 # set parameters
 cluster_col <- "cluster"
 reduction_name <- "umap.harmony.rna"
-min_pct <- 0.25
-logfc_thr <- 0.25
-n_save <- 5
-n_review_markers <- 3
 pt_size <- 0.01
 
 # this list of markers will be helpful to better characterize
@@ -73,8 +69,8 @@ markers <- FindAllMarkers(
   object = obj,
   assay = "RNA",
   only.pos = TRUE,
-  min.pct = min_pct,
-  logfc.threshold = logfc_thr,
+  min.pct = 0.25,
+  logfc.threshold = 0.25,
   test.use = "wilcox",
   verbose = FALSE
 )
@@ -85,13 +81,13 @@ write.csv(markers, file.path(res_dir, "all_markers.csv"), row.names = FALSE)
 # save the strongest markers per cluster for manual review
 top_markers_save <- markers %>%
   group_by(cluster) %>%
-  slice_max(order_by = avg_log2FC, n = n_save, with_ties = FALSE) %>%
+  slice_max(order_by = avg_log2FC, n = 5, with_ties = FALSE) %>%
   ungroup()
 write.csv(top_markers_save, file.path(res_dir, "top_markers_per_cluster.csv"), row.names = FALSE)
 
 top_markers_review <- markers %>%
   group_by(cluster) %>%
-  slice_max(order_by = avg_log2FC, n = n_review_markers, with_ties = FALSE) %>%
+  slice_max(order_by = avg_log2FC, n = 3, with_ties = FALSE) %>%
   summarise(top_markers = paste(gene, collapse = ", "), .groups = "drop")
 
 # dotplot of the strongest marker genes found per cluster

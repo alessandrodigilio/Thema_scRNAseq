@@ -10,19 +10,17 @@
 suppressPackageStartupMessages({
   library(Seurat)
   library(ggplot2)
-  library(readxl)
 })
 
-# work from the project root
+# wd
 setwd("~/Thema_R")
 source("src/global_config.R")
+source("src/fibroblast_subcluster/utils.R")
 
-# create output directories used by this step
+# directories
 input_subset_object <- file.path(data_dir, "integrated_object", "destructive_lining_fibroblasts_subclustered.rds")
-
 res_dir <- file.path(results_dir, "destructive_lining_fibroblast_HA_enriched_state_DE")
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
-
 fig_dir <- file.path(figures_dir, "destructive_lining_fibroblast_HA_enriched_state_DE")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -39,8 +37,6 @@ ha_enriched_group <- "HA-enriched DLF states"
 other_state_group <- "Other DLF states"
 group_levels <- c(other_state_group, ha_enriched_group)
 
-min_pct <- 0.10
-logfc_thr <- 0.10
 padj_thr <- 0.05
 top_n_labels <- 20
 min_cells_per_sample_state <- 5
@@ -48,21 +44,6 @@ group_colors <- c(
   "Other DLF states" = "#8FA0A8",
   "HA-enriched DLF states" = "#C65A5A"
 )
-condition_colors <- c(
-  "other" = "#B65A5A",
-  "HA" = "#5B8DB8"
-)
-
-destructive_lining_fibroblast_subcluster_labels <- c(
-  "0" = "HLA-II MMP3+ lining fibroblasts (HLA-DRA+)",
-  "1" = "Activated MMP3+ lining fibroblast cells (ID1+)",
-  "2" = "HA-enriched inflammatory MMP3+ lining fibroblasts (CCL7+/CXCL1+)",
-  "3" = "Matrix-adhesion MMP3+ lining fibroblast cells (ITGB8+)",
-  "4" = "MMP3+ lining fibroblast cells (FAM184A+)",
-  "5" = "HA-enriched SFRP2+ matrix fibroblast-like cells"
-)
-
-iron_gene_files <- iron_related_geneset_files
 
 selected_genes <- c(
   "HMOX1", "NQO1", "FTL", "FTH1", "CP", "SLC40A1", "TFRC",
@@ -70,35 +51,6 @@ selected_genes <- c(
   "CCL7", "CXCL1", "CCL20", "CCRL2", "BIRC3",
   "MMP3", "MMP1", "IL6", "PTGS2"
 )
-
-load_iron_genes <- function(files) {
-  iron_genes <- character(0)
-
-  for (f in files) {
-    if (!file.exists(f)) next
-    x <- read_excel(f)
-    if (ncol(x) == 0) next
-
-    genes_here <- trimws(as.character(x[[1]]))
-    genes_here <- toupper(genes_here[!is.na(genes_here) & genes_here != ""])
-    iron_genes <- c(iron_genes, genes_here)
-  }
-
-  iron_genes <- sort(unique(iron_genes))
-  iron_genes <- iron_genes[iron_genes != "GENE"]
-  iron_genes[iron_genes == "TRFC"] <- "TFRC"
-  iron_genes
-}
-
-safe_neg_log10 <- function(x) {
-  y <- -log10(x)
-  if (any(is.infinite(y), na.rm = TRUE)) {
-    max_finite <- max(y[is.finite(y)], na.rm = TRUE)
-    if (!is.finite(max_finite)) max_finite <- 0
-    y[is.infinite(y)] <- max_finite + 1
-  }
-  y
-}
 
 # load destructive lining fibroblast subset object
 if (!file.exists(input_subset_object)) {
@@ -130,14 +82,7 @@ if (is.null(rna_data_layer) || length(rna_data_layer@x) == 0) {
 
 # apply final labels and define the targeted state groups
 cluster_ids <- as.character(obj@meta.data[[cluster_col]])
-mapped_labels <- unname(destructive_lining_fibroblast_subcluster_labels[cluster_ids])
-mapped_labels[is.na(mapped_labels)] <- "Unknown"
-
-obj@meta.data[[label_col]] <- factor(
-  mapped_labels,
-  levels = unname(destructive_lining_fibroblast_subcluster_labels)
-)
-obj@meta.data[[label_col]] <- droplevels(obj@meta.data[[label_col]])
+obj <- add_destructive_lining_fibroblast_subtype_labels(obj, cluster_col = cluster_col, label_col = label_col)
 
 state_group <- rep(NA_character_, length(cluster_ids))
 state_group[cluster_ids %in% ha_enriched_clusters] <- ha_enriched_group
@@ -219,8 +164,8 @@ de_df <- FindMarkers(
   ident.1 = ha_enriched_group,
   ident.2 = other_state_group,
   test.use = "wilcox",
-  min.pct = min_pct,
-  logfc.threshold = logfc_thr,
+  min.pct = 0.10,
+  logfc.threshold = 0.10,
   only.pos = FALSE,
   verbose = FALSE
 )
@@ -236,7 +181,7 @@ write.csv(de_df, file.path(res_dir, "FindMarkers_HA_enriched_DLF_states_vs_other
 sig_df <- de_df[de_df$is_significant, , drop = FALSE]
 write.csv(sig_df, file.path(res_dir, "FindMarkers_HA_enriched_DLF_states_vs_other_DLF_states_significant.csv"), row.names = FALSE)
 
-iron_genes <- load_iron_genes(iron_gene_files)
+iron_genes <- load_gene_set_files(iron_related_geneset_files)
 iron_de_df <- de_df[toupper(de_df$gene) %in% iron_genes, , drop = FALSE]
 write.csv(iron_de_df, file.path(res_dir, "FindMarkers_HA_enriched_DLF_states_vs_other_DLF_states_iron_related.csv"), row.names = FALSE)
 

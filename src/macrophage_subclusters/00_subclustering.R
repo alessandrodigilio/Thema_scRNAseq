@@ -2,16 +2,12 @@
 ### Macrophage subclustering ###
 ################################
 
-# subset the annotated object to the main macrophage populations,
-# rerun dimensional reduction and clustering on the subset and compute
-# subcluster markers with a second macrophage-specific annotation layer
+# subset the annotated object to the main macrophage populations
 
 suppressPackageStartupMessages({
   library(Seurat)
   library(ggplot2)
   library(dplyr)
-  library(tidyr)
-  library(patchwork)
   library(harmony)
 })
 
@@ -32,7 +28,6 @@ dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 
 output_subset_object <- file.path(out_dir, "macrophages_subclustered.rds")
 output_full_object <- file.path(out_dir, "annotated_macrophage_subclusters.rds")
-manual_labels_file <- file.path(res_dir, "macrophage_subcluster_manual_labels.csv")
 
 # set parameters
 parent_celltypes <- c(
@@ -43,14 +38,6 @@ group_col <- "condition"
 batch_col <- "sample_id"
 reduction_name <- "umap.harmony.macrophage"
 cluster_col <- "macrophage_subcluster"
-n_pcs_macro <- 20
-harmony_dims_macro <- 1:20
-cluster_res_grid_macro <- seq(0.2, 0.8, by = 0.1)
-selected_cluster_res_macro <- 0.3
-min_pct <- 0.25
-logfc_thr <- 0.25
-n_review_markers <- 3
-n_top_labels_review <- 3
 
 set.seed(1234)
 
@@ -94,7 +81,7 @@ print(table(obj$cell_type))
 # recompute subset embedding and clustering
 obj <- FindVariableFeatures(obj, selection.method = "vst", nfeatures = 3000, verbose = FALSE)
 obj <- ScaleData(obj, verbose = FALSE)
-obj <- RunPCA(obj, npcs = n_pcs_macro, verbose = FALSE)
+obj <- RunPCA(obj, npcs = 20, verbose = FALSE)
 
 if (!batch_col %in% colnames(obj@meta.data)) {
   stop("Batch column not found in metadata: ", batch_col)
@@ -105,7 +92,7 @@ obj <- RunHarmony(
   object = obj,
   group.by.vars = batch_col,
   reduction = "pca",
-  dims.use = harmony_dims_macro,
+  dims.use = 1:20,
   reduction.save = "harmony",
   verbose = FALSE
 )
@@ -113,7 +100,7 @@ obj <- RunHarmony(
 obj <- RunUMAP(
   object = obj,
   reduction = "harmony",
-  dims = harmony_dims_macro,
+  dims = 1:20,
   reduction.name = reduction_name,
   reduction.key = "UMAPMAC_",
   n.neighbors = 30,
@@ -125,20 +112,20 @@ obj <- RunUMAP(
 obj <- FindNeighbors(
   object = obj,
   reduction = "harmony",
-  dims = harmony_dims_macro,
+  dims = 1:20,
   k.param = 20,
   verbose = FALSE
 )
 
 cluster_summary <- data.frame(
-  resolution = cluster_res_grid_macro,
+  resolution = seq(0.2, 0.8, by = 0.1),
   n_clusters = NA_integer_,
   stringsAsFactors = FALSE
 )
 
 # run clustering for each resolution and summarize the number of clusters
-for (i in seq_along(cluster_res_grid_macro)) {
-  res_here <- cluster_res_grid_macro[i]
+for (i in seq_along(cluster_summary$resolution)) {
+  res_here <- cluster_summary$resolution[i]
   obj <- FindClusters(
     object = obj,
     resolution = res_here,
@@ -153,7 +140,7 @@ for (i in seq_along(cluster_res_grid_macro)) {
 write.csv(cluster_summary, file.path(res_dir, "macrophage_cluster_resolution_summary.csv"), row.names = FALSE)
 
 # set the selected clustering resolution and update the Seurat object
-selected_cluster_col <- paste0("RNA_snn_res.", selected_cluster_res_macro)
+selected_cluster_col <- paste0("RNA_snn_res.", 0.3)
 if (!selected_cluster_col %in% colnames(obj@meta.data)) {
   stop("Selected clustering column not found: ", selected_cluster_col)
 }
@@ -169,8 +156,8 @@ markers <- FindAllMarkers(
   object = obj,
   assay = "RNA",
   only.pos = TRUE,
-  min.pct = min_pct,
-  logfc.threshold = logfc_thr,
+  min.pct = 0.25,
+  logfc.threshold = 0.25,
   test.use = "wilcox",
   verbose = FALSE
 )
@@ -188,51 +175,11 @@ top_markers_save <- markers %>%
 write.csv(top_markers_save, file.path(res_dir, "top_markers_per_macrophage_subcluster.csv"), row.names = FALSE)
 top_markers_review <- markers %>%
   group_by(cluster) %>%
-  slice_max(order_by = avg_log2FC, n = n_review_markers, with_ties = FALSE) %>%
+  slice_max(order_by = avg_log2FC, n = 3, with_ties = FALSE) %>%
   summarise(top_markers = paste(gene, collapse = ", "), .groups = "drop")
 top_markers_review$cluster <- as.character(top_markers_review$cluster)
-
-# review table
-cluster_counts <- obj@meta.data %>%
-  count(.data[[cluster_col]], name = "n_cells")
-cluster_counts[[cluster_col]] <- as.character(cluster_counts[[cluster_col]])
-cluster_review <- data.frame(cluster_id = cluster_levels, stringsAsFactors = FALSE) %>%
-  left_join(cluster_counts, by = c("cluster_id" = cluster_col)) %>%
-  left_join(top_markers_review, by = c("cluster_id" = "cluster"))
-
-# add metadata composition summaries for each cluster
-for (meta_col in c("cell_type", "sample_id", "condition_all", "condition", "sex")) {
-  meta_top <- summarize_label_composition(
-    meta_df = obj@meta.data,
-    cluster_col = cluster_col,
-    label_col = meta_col,
-    prefix = meta_col,
-    n_top = n_top_labels_review
-  )
-
-  if (!is.null(meta_top)) {
-    cluster_review <- cluster_review %>%
-      left_join(meta_top, by = "cluster_id")
-  }
-}
-# save
-write.csv(cluster_review, file.path(res_dir, "macrophage_subcluster_review_table.csv"), row.names = FALSE)
-
-# create a template for manual labeling of macrophage subclusters
-if (!file.exists(manual_labels_file)) {
-  manual_template <- cluster_review %>%
-    transmute(
-      cluster_id = cluster_id,
-      marker_hint = top_markers,
-      manual_label = "",
-      notes = ""
-    )
-
-  write.csv(manual_template, manual_labels_file, row.names = FALSE)
-  cat("\nManual label template created:\n", manual_labels_file, "\n")
-} else {
-  cat("\nUsing existing manual label template:\n", manual_labels_file, "\n")
-}
+cat("\nTop markers used for macrophage subcluster review:\n")
+print(top_markers_review)
 
 # save subset object
 saveRDS(obj, output_subset_object)
@@ -243,51 +190,6 @@ obj_full$macrophage_subcluster[Cells(obj)] <- as.character(obj$macrophage_subclu
 obj_full$macrophage_parent_type <- NA_character_
 obj_full$macrophage_parent_type[Cells(obj)] <- as.character(obj$cell_type)
 saveRDS(obj_full, output_full_object) # updated full object with macrophage subcluster layer
-
-# review plots
-cat("\nPlotting macrophage subcluster review panels...\n")
-review_plots <- list(
-  DimPlot(
-    object = obj,
-    reduction = reduction_name,
-    group.by = cluster_col,
-    raster = FALSE,
-    label = TRUE,
-    repel = TRUE
-  ) + ggtitle("Macrophage subclusters"),
-  DimPlot(
-    object = obj,
-    reduction = reduction_name,
-    group.by = "cell_type",
-    raster = FALSE,
-    label = TRUE,
-    repel = TRUE
-  ) + ggtitle("Parent macrophage types")
-)
-
-# add additional metadata columns for review 
-for (plot_col in c("sample_id", "condition")) {
-  if (plot_col %in% colnames(obj@meta.data)) {
-    review_plots[[length(review_plots) + 1]] <- DimPlot(
-      object = obj,
-      reduction = reduction_name,
-      group.by = plot_col,
-      raster = FALSE,
-      label = TRUE,
-      repel = TRUE
-    ) + ggtitle(plot_col)
-  }
-}
-
-p_review <- wrap_plots(review_plots, ncol = 2)
-# save
-ggsave(
-  file.path(fig_dir, "macrophage_subclusters_review.png"),
-  p_review,
-  width = 16,
-  height = 12,
-  dpi = 600
-)
 
 # dotplot of top subcluster markers
 review_features <- top_markers_review$top_markers

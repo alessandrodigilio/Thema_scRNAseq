@@ -197,3 +197,112 @@ red_pulp_like_features <- c(
   "CD163", "CD14", "FCGR2A", "FCGR3A", "FCGR2B",
   "CYBB", "SLC48A1", "HMOX1", "SLC40A1"
 )
+
+############################################
+### endothelial annotation information ###
+############################################
+
+# final endothelial subtype labels
+endothelial_subcluster_labels <- c(
+  "0" = "Endothelial cells (PLXNA4+)",
+  "1" = "Stress-response endothelial cells (HSPA6+)",
+  "2" = "Activated endothelial cells (IL6+)",
+  "3" = "Endothelial cells (ZNF385B+)",
+  "4" = "Endothelial cells (EDNRB+)",
+  "5" = "Arterial-like endothelial cells (GJA5+)",
+  "6" = "Endothelial cells (SLC2A14+)",
+  "7" = "Mixed stromal-like cells",
+  "8" = "Mural-like cells"
+)
+
+# final endothelial subtype colors
+endothelial_subtype_colors <- c(
+  "Endothelial cells (PLXNA4+)" = "#D46A6A",
+  "Stress-response endothelial cells (HSPA6+)" = "#C7B24A",
+  "Activated endothelial cells (IL6+)" = "#84B547",
+  "Endothelial cells (ZNF385B+)" = "#7C7FD4",
+  "Endothelial cells (EDNRB+)" = "#49B6A5",
+  "Arterial-like endothelial cells (GJA5+)" = "#4E88C7",
+  "Endothelial cells (SLC2A14+)" = "#57C6D9",
+  "Mixed stromal-like cells" = "#C58A8A",
+  "Mural-like cells" = "#C86DD7"
+)
+
+# canonical markers used to annotate endothelial subtypes
+marker_genes_endothelial <- list(
+  "Endothelial cells (PLXNA4+)" = c("PLXNA4", "NR2F2-AS1", "PLCXD3"),
+  "Stress-response endothelial cells (HSPA6+)" = c("HSPA6", "G0S2", "MMP1"),
+  "Activated endothelial cells (IL6+)" = c("IL6", "RGS16", "HES1"),
+  "Endothelial cells (ZNF385B+)" = c("ZNF385B", "LINC01411", "KCNQ5"),
+  "Endothelial cells (EDNRB+)" = c("EDNRB", "BTNL9", "RCAN2"),
+  "Arterial-like endothelial cells (GJA5+)" = c("GJA5", "TMEM178A", "LINC00639"),
+  "Endothelial cells (SLC2A14+)" = c("SLC2A14", "SNX31", "LRRC23"),
+  "Mixed stromal-like cells" = c("COMP", "IGF1", "COL1A1"),
+  "Mural-like cells" = c("RGS5", "AVPR1A", "ABCC9")
+)
+
+# iron marker panel used in endothelial subtype inspection
+endothelial_iron_features <- c(
+  "HMOX1", "SLC40A1", "TFRC", "STEAP3", "FTH1", "FTL",
+  "SLC11A2", "CP", "NCOA4", "GPX4", "ACSL4", "AIFM2",
+  "NQO1", "GCLC", "GCLM", "ALOX5", "ALOX15", "SAT1"
+)
+
+##############################################################
+### destructive lining fibroblast annotation information ###
+##############################################################
+
+# final destructive lining fibroblast subtype labels
+destructive_lining_fibroblast_subcluster_labels <- c(
+  "0" = "HLA-II MMP3+ lining fibroblasts (HLA-DRA+)",
+  "1" = "Activated MMP3+ lining fibroblast cells (ID1+)",
+  "2" = "HA-enriched inflammatory MMP3+ lining fibroblasts (CCL7+/CXCL1+)",
+  "3" = "Matrix-adhesion MMP3+ lining fibroblast cells (ITGB8+)",
+  "4" = "MMP3+ lining fibroblast cells (FAM184A+)",
+  "5" = "HA-enriched SFRP2+ matrix fibroblast-like cells"
+)
+
+# final destructive lining fibroblast subtype colors
+destructive_lining_fibroblast_subtype_colors <- c(
+  "HLA-II MMP3+ lining fibroblasts (HLA-DRA+)" = "#5F7EA6",
+  "Activated MMP3+ lining fibroblast cells (ID1+)" = "#D98F5C",
+  "HA-enriched inflammatory MMP3+ lining fibroblasts (CCL7+/CXCL1+)" = "#C65A5A",
+  "Matrix-adhesion MMP3+ lining fibroblast cells (ITGB8+)" = "#4C9F8A",
+  "MMP3+ lining fibroblast cells (FAM184A+)" = "#9B7AAE",
+  "HA-enriched SFRP2+ matrix fibroblast-like cells" = "#C7B24A",
+  "Low cell count (<5 cells)" = "white"
+)
+
+# canonical markers used to annotate destructive lining fibroblast subtypes
+marker_genes_destructive_lining_fibroblast <- list(
+  "HLA-II MMP3+ lining fibroblasts (HLA-DRA+)" = c("HLA-DRA", "CD74", "CSN1S1", "AMTN"),
+  "Activated MMP3+ lining fibroblast cells (ID1+)" = c("ID1", "FOS", "SERTAD1", "NFE2L3"),
+  "HA-enriched inflammatory MMP3+ lining fibroblasts (CCL7+/CXCL1+)" = c("CCL7", "CCRL2", "CCL20", "CXCL1", "BIRC3"),
+  "Matrix-adhesion MMP3+ lining fibroblast cells (ITGB8+)" = c("ITGB8", "ADAMTSL1", "SEMA3A", "TXNIP", "ZNF385B"),
+  "MMP3+ lining fibroblast cells (FAM184A+)" = c("FAM184A", "C5orf64", "ARHGAP15", "SERPINE3"),
+  "HA-enriched SFRP2+ matrix fibroblast-like cells" = c("SFRP2", "SFRP1", "COMP", "PODN", "IGF1", "MFAP5")
+)
+
+# lining/remodeling marker panel used during subcluster inspection
+destructive_lining_fibroblast_marker_features <- c(
+  "MMP3", "MMP1", "CXCL1", "CXCL6", "IL6", "PTGS2",
+  "PRG4", "CLIC5", "DEFB1", "PDPN", "THY1",
+  "COL1A1", "COL1A2", "COL3A1", "COL5A3", "COL6A1",
+  "ADAMTS4", "ADAMTS9", "TIMP1", "TIMP2", "HAS1", "VCAM1", "VEGFA"
+)
+
+# iron marker panel used in destructive lining fibroblast inspection
+destructive_lining_fibroblast_iron_features <- c(
+  "HMOX1", "SLC40A1", "TFRC", "STEAP3", "FTH1", "FTL",
+  "SLC11A2", "CP", "NCOA4", "GPX4", "ACSL4", "AIFM2",
+  "NQO1", "GCLC", "GCLM", "ALOX5", "ALOX15", "SAT1",
+  "SLC25A37", "SLC25A28", "SLC39A14", "SLC39A8"
+)
+
+# TGF-beta panel used for focused fibroblast functional plots
+tgf_beta_fibroblast_features <- c(
+  "TGFB1", "TGFB2", "TGFB3",
+  "TGFBR1", "TGFBR2", "TGFBR3",
+  "SMAD2", "SMAD3", "SMAD4", "SMAD7",
+  "SERPINE1", "CTGF", "COL1A1", "COL3A1"
+)
