@@ -1,58 +1,70 @@
-# THEMA single-cell RNA-seq analysis
+# THEMA: Hemophilic Arthropathy Synovial scRNA-seq
 
-This repository contains the R and PBS scripts used for the single-cell RNA-seq analysis of synovial membrane samples from patients with hemophilic arthropathy and comparator osteoarthritis/rheumatoid arthritis samples.
+### Single-cell RNA-seq analysis of synovial membrane samples from hemophilic arthropathy (HA), osteoarthritis (OA) and rheumatoid arthritis (RA)
 
-The analysis focuses on the cellular and transcriptional architecture of hemophilic arthropathy synovium, with particular attention to iron metabolism, ferroptosis-related programs, macrophage states, fibroblast states, endothelial states, and trajectory analysis.
+Hemophilic arthropathy is associated with recurrent joint bleeding, synovial iron deposition, low-grade inflammation and progressive tissue remodeling. The single-cell analysis defines the synovial cellular landscape in HA and compares it with OA/RA tissues, with focus on macrophages, fibroblast-like synoviocytes and endothelial cells.
 
-## Repository Structure
+The workflow starts from an integrated synovial atlas and focus on selected macrophage, endothelial and fibroblast compartments.
 
-- `src/global_config.R`: project-wide paths, labels, palettes and shared parameters.
-- `src/atlas/`: atlas-level quality control, filtering, integration, annotation, differential expression, enrichment and iron/ferroptosis analyses.
-- `src/macrophage_subclusters/`: macrophage reclustering and downstream analyses.
-- `src/endothelial_subclusters/`: endothelial reclustering and downstream analyses.
-- `src/fibroblast_subcluster/`: destructive lining fibroblast reclustering and downstream analyses.
-- `src/trajectory_analysis/`: monocle3 trajectory analysis.
-- `src/paper_subcluster_umaps.R`: publication-oriented UMAP panels.
-- `src/pbs/`: PBS launcher scripts for the R analysis steps.
-- `src/pre_processing/`: upstream nf-core/scrnaseq Cell Ranger launcher and raw-data utility scripts.
-- `metadata/`: sample metadata, filtering thresholds, curated gene sets, and samplesheet templates.
-- `env/`: conda environment file used for the R analysis.
-
-Raw data, intermediate Seurat objects, results, logs, and generated figures are not tracked in this repository.
-
-## Data Layout
-
-The scripts expect the following local folders, which are ignored by git:
+## Repository Organization
 
 ```text
-data/raw_counts/
-data/filtered_data/
-data/integrated_object/
-results/
-figures/
-logs/
+src/
+  global_config.R
+  atlas/
+  macrophage_subclusters/
+  endothelial_subclusters/
+  fibroblast_subcluster/
+  trajectory_analysis/
+  pre_processing/
+  pbs/
+  paper_subcluster_umaps.R
+  check_genes.R
+
+metadata/
+  filters.xlsx
+  subject_info.xlsx
+  iron_genes/
+  samplesheets/
+
+env/
+  environment.yml
 ```
 
-Before running the workflow on a new system, update local paths in `src/global_config.R` and adapt the FASTQ paths in `metadata/samplesheets/scRNA_samplesheet_all_samples.csv`.
+- `global_config.R` defines paths, sample-independent settings, final annotations, marker panels and plotting palettes
+- `utils.R` scripts contain helper functions used by the scripts in that folder
 
-## Environment
+## Reproducibility
 
-The R environment can be recreated from:
+### Environment
+
+The R environment (R libraries) used for the analysis is described in:
+
+```text
+env/environment.yml
+```
+
+To reproduce it:
 
 ```bash
 conda env create -f env/environment.yml
 conda activate thema_r_env
 ```
 
-The upstream FASTQ-to-count-matrix processing was performed with nf-core/scrnaseq using Cell Ranger. The corresponding PBS launcher is provided in:
+## Workflow
+
+### FASTQ Processing
+
+FASTQ files were processed with `nf-core/scrnaseq` using Cell Ranger and a GRCh38/GENCODE v46 reference. The PBS launcher and samplesheets used for the count-matrix generation are stored in:
 
 ```text
 src/pre_processing/nfcore_scrnaseq_cellranger_all_samples.pbs
+metadata/samplesheets/
 ```
 
-## Analysis Workflow
+### Atlas-Level Analysis
 
-Run the scripts in numerical order:
+This block inspect disease-associated transcriptional programs across the atlas
 
 ```text
 src/atlas/00_qc_prefiltering.R
@@ -63,20 +75,58 @@ src/atlas/05_celltype_composition_ha_vs_other.R
 src/atlas/06_pseudobulk_deseq2_ha_vs_other.R
 src/atlas/07_enrichment_ha_vs_other.R
 src/atlas/08_ferroptosis_ha_vs_other.R
+```
+
+### Focused Subcluster Analyses
+
+Macrophages:
+
+```text
 src/macrophage_subclusters/00_subclustering.R
 src/macrophage_subclusters/01_annotation.R
 src/macrophage_subclusters/02_subtype_composition_ha_vs_other.R
 src/macrophage_subclusters/03_pseudobulk_deseq2_ha_vs_other.R
 src/macrophage_subclusters/04_gsea_ha_vs_other.R
 src/macrophage_subclusters/05_ferroptosis_ha_vs_other.R
-src/endothelial_subclusters/00-05: endothelial subclustering and downstream analyses
-src/fibroblast_subcluster/00-03: destructive lining fibroblast subclustering and downstream analyses
-src/trajectory_analysis/monocle3_trajectory_analysis.R
-src/paper_subcluster_umaps.R
 ```
 
-PBS scripts matching the main analysis steps are available in `src/pbs/`.
+Endothelial cells:
 
-## Notes
+```text
+src/endothelial_subclusters/00_subclustering.R
+src/endothelial_subclusters/01_annotation.R
+src/endothelial_subclusters/02_subtype_composition_ha_vs_other.R
+src/endothelial_subclusters/03_pseudobulk_deseq2_ha_vs_other.R
+src/endothelial_subclusters/04_gsea_ha_vs_other.R
+src/endothelial_subclusters/05_ferroptosis_ha_vs_other.R
+```
 
-...
+Destructive lining fibroblasts:
+
+```text
+src/fibroblast_subcluster/00_subclustering.R
+src/fibroblast_subcluster/01_annotation.R
+src/fibroblast_subcluster/02_de_ha_enriched_states.R
+src/fibroblast_subcluster/03_functional_analysis_ha_enriched_states.R
+```
+
+These analyses resolve internal heterogeneity within the main compartments. The macrophage workflow characterizes resident, inflammatory and red-pulp-like states; the endothelial workflow focuses on activated and stress-response vascular states; the fibroblast workflow tests the HA-enriched destructive lining fibroblast states and their inflammatory, matrix-remodeling and iron-related programs
+
+### Trajectory Analysis
+
+```text
+src/trajectory_analysis/monocle3_trajectory_analysis.R
+```
+
+Monocle3 is applied to the already reclustered macrophage, endothelial and destructive lining fibroblast compartments
+## Local Outputs
+
+Large and generated files are kept outside version control:
+
+```text
+data/
+results/
+figures/
+logs/
+```
+
