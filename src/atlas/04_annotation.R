@@ -20,9 +20,9 @@ source("src/atlas/utils.R")
 input_object <- file.path(data_dir, "integrated_object", "integrated.rds")
 output_object <- file.path(data_dir, "integrated_object", "annotated.rds")
 
-fig_dir <- file.path(figures_dir, "annotation")
+fig_dir <- file.path(atlas_figures_dir, "annotation")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
-res_dir <- file.path(results_dir, "annotation")
+res_dir <- file.path(atlas_results_dir, "annotation")
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 
 # set parameters

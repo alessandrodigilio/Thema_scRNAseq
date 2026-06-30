@@ -18,8 +18,8 @@ source("src/macrophage_subclusters/utils.R")
 
 # directories
 input_object <- file.path(data_dir, "integrated_object", "macrophages_subclustered.rds")
-fig_dir <- file.path(figures_dir, "macrophage_ferroptosis")
-res_dir <- file.path(results_dir, "macrophage_ferroptosis")
+fig_dir <- file.path(macrophage_figures_dir, "macrophage_ferroptosis")
+res_dir <- file.path(macrophage_results_dir, "macrophage_ferroptosis")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 

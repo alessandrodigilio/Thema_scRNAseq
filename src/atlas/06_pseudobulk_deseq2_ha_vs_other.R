@@ -18,8 +18,8 @@ source("src/atlas/utils.R")
 
 # directories
 input_object <- file.path(data_dir, "integrated_object", "annotated.rds")
-res_dir <- file.path(results_dir, "pseudobulk_deseq2")
-fig_dir <- file.path(figures_dir, "pseudobulk_deseq2")
+res_dir <- file.path(atlas_results_dir, "pseudobulk_deseq2")
+fig_dir <- file.path(atlas_figures_dir, "pseudobulk_deseq2")
 volcano_dir <- file.path(fig_dir, "volcano_plot")
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(volcano_dir, recursive = TRUE, showWarnings = FALSE)

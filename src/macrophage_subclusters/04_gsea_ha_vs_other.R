@@ -16,11 +16,11 @@ source("src/atlas/utils.R")
 source("src/macrophage_subclusters/utils.R")
 
 # directories
-pseudobulk_res_dir <- file.path(results_dir, "pseudobulk_deseq2_macrophage_subtypes")
-fgsea_res_dir <- file.path(results_dir, "fgsea_pseudobulk_macrophage_subtypes_ha_vs_other")
+pseudobulk_res_dir <- file.path(macrophage_results_dir, "pseudobulk_deseq2_macrophage_subtypes")
+fgsea_res_dir <- file.path(macrophage_results_dir, "fgsea_pseudobulk_macrophage_subtypes_ha_vs_other")
 fgsea_table_dir <- file.path(fgsea_res_dir, "significant_tables")
 fgsea_iron_table_dir <- file.path(fgsea_res_dir, "iron_related_significant_tables")
-fgsea_curve_dir <- file.path(figures_dir, "fgsea_pseudobulk_macrophage_subtypes_ha_vs_other", "gsea_curves")
+fgsea_curve_dir <- file.path(macrophage_figures_dir, "fgsea_pseudobulk_macrophage_subtypes_ha_vs_other", "gsea_curves")
 
 dir.create(fgsea_table_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(fgsea_iron_table_dir, recursive = TRUE, showWarnings = FALSE)

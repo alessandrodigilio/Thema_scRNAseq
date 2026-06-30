@@ -18,8 +18,8 @@ source("src/endothelial_subclusters/utils.R")
 
 # directories
 input_object <- file.path(data_dir, "integrated_object", "activated_endothelial_subclustered.rds")
-fig_dir <- file.path(figures_dir, "endothelial_ferroptosis")
-res_dir <- file.path(results_dir, "endothelial_ferroptosis")
+fig_dir <- file.path(endothelial_figures_dir, "endothelial_ferroptosis")
+res_dir <- file.path(endothelial_results_dir, "endothelial_ferroptosis")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 

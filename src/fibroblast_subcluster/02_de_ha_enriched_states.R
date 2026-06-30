@@ -18,9 +18,9 @@ source("src/fibroblast_subcluster/utils.R")
 
 # directories
 input_subset_object <- file.path(data_dir, "integrated_object", "destructive_lining_fibroblasts_subclustered.rds")
-res_dir <- file.path(results_dir, "destructive_lining_fibroblast_HA_enriched_state_DE")
+res_dir <- file.path(fibroblast_results_dir, "destructive_lining_fibroblast_HA_enriched_state_DE")
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
-fig_dir <- file.path(figures_dir, "destructive_lining_fibroblast_HA_enriched_state_DE")
+fig_dir <- file.path(fibroblast_figures_dir, "destructive_lining_fibroblast_HA_enriched_state_DE")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
 # set parameters

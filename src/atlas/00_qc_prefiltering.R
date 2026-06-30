@@ -17,7 +17,7 @@ setwd("~/Thema_R")
 source("src/global_config.R")
 
 # dir
-qc_fig_dir <- file.path(figures_dir, "qc_prefiltering")
+qc_fig_dir <- file.path(atlas_figures_dir, "qc_prefiltering")
 dir.create(qc_fig_dir, recursive = TRUE, showWarnings = FALSE)
 qc_table_dir <- file.path(qc_dir, "pre_filtering")
 dir.create(qc_table_dir, recursive = TRUE, showWarnings = FALSE)

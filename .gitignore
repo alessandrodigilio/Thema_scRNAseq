@@ -19,6 +19,9 @@ Thumbs.db
 *.swo
 *~
 
+# Local helper scripts
+src/check_genes.R
+
 # Logs
 *.log
 logs/

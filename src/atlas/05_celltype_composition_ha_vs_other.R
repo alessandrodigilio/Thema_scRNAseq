@@ -16,9 +16,9 @@ source("src/atlas/utils.R")
 
 # directories
 input_object <- file.path(data_dir, "integrated_object", "annotated.rds")
-fig_dir <- file.path(figures_dir, "celltype_composition_ha_vs_other")
+fig_dir <- file.path(atlas_figures_dir, "celltype_composition_ha_vs_other")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
-res_dir <- file.path(results_dir, "celltype_composition_ha_vs_other")
+res_dir <- file.path(atlas_results_dir, "celltype_composition_ha_vs_other")
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 
 # set parameters

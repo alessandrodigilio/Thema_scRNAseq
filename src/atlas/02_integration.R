@@ -23,9 +23,9 @@ source("src/atlas/utils.R")
 input_object <- file.path(filtered_data_dir, "filtered_samples.rds")
 out_dir <- integrated_data_dir
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-fig_dir <- file.path(figures_dir, "integration")
+fig_dir <- file.path(atlas_figures_dir, "integration")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
-results_int_dir <- file.path(results_dir, "integration")
+results_int_dir <- file.path(atlas_results_dir, "integration")
 dir.create(results_int_dir, recursive = TRUE, showWarnings = FALSE)
 output_object <- file.path(out_dir, "integrated.rds")
 

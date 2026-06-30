@@ -17,9 +17,9 @@ source("src/global_config.R")
 source("src/atlas/utils.R")
 
 # directories
-pseudobulk_res_dir <- file.path(results_dir, "pseudobulk_deseq2")
-res_dir <- file.path(results_dir, "enrichment_ha_vs_other")
-fig_dir <- file.path(figures_dir, "enrichment_ha_vs_other")
+pseudobulk_res_dir <- file.path(atlas_results_dir, "pseudobulk_deseq2")
+res_dir <- file.path(atlas_results_dir, "enrichment_ha_vs_other")
+fig_dir <- file.path(atlas_figures_dir, "enrichment_ha_vs_other")
 fgsea_table_dir <- file.path(res_dir, "fgsea", "significant_tables")
 fgsea_iron_table_dir <- file.path(res_dir, "fgsea", "iron_related_significant_tables")
 fgsea_curve_dir <- file.path(fig_dir, "fgsea", "gsea_curves")

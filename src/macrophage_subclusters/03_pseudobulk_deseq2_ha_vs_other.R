@@ -20,10 +20,10 @@ source("src/macrophage_subclusters/utils.R")
 
 # directories
 input_object <- file.path(data_dir, "integrated_object", "annotated_macrophage_states.rds")
-res_dir <- file.path(results_dir, "pseudobulk_deseq2_macrophage_subtypes")
-fig_dir <- file.path(figures_dir, "pseudobulk_deseq2_macrophage_subtypes")
+res_dir <- file.path(macrophage_results_dir, "pseudobulk_deseq2_macrophage_subtypes")
+fig_dir <- file.path(macrophage_figures_dir, "pseudobulk_deseq2_macrophage_subtypes")
 volcano_dir <- file.path(fig_dir, "volcano_plot")
-gene_fig_dir <- file.path(figures_dir, "macrophage_gene_violin")
+gene_fig_dir <- file.path(macrophage_figures_dir, "macrophage_gene_violin")
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(volcano_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(gene_fig_dir, recursive = TRUE, showWarnings = FALSE)

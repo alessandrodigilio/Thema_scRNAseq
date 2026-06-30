@@ -19,8 +19,8 @@ source("src/global_config.R")
 source("src/trajectory_analysis/utils.R")
 
 # directories
-fig_dir <- file.path(figures_dir, "monocle3_trajectory_analysis")
-res_dir <- file.path(results_dir, "monocle3_trajectory_analysis")
+fig_dir <- file.path(trajectory_figures_dir, "monocle3_trajectory_analysis")
+res_dir <- file.path(trajectory_results_dir, "monocle3_trajectory_analysis")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(res_dir, recursive = TRUE, showWarnings = FALSE)
 

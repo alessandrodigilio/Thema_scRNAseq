@@ -29,7 +29,7 @@ objects_dir <- filtered_data_dir
 dir.create(objects_dir, recursive = TRUE, showWarnings = FALSE)
 log_dir <- filtering_log_dir
 dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
-fig_filtering_dir <- file.path(figures_dir, "filtering")
+fig_filtering_dir <- file.path(atlas_figures_dir, "filtering")
 dir.create(fig_filtering_dir, recursive = TRUE, showWarnings = FALSE)
 
 # load per-sample filtering thresholds

@@ -18,8 +18,6 @@ src/
   trajectory_analysis/
   pre_processing/
   pbs/
-  paper_subcluster_umaps.R
-  check_genes.R
 
 metadata/
   filters.xlsx
@@ -64,7 +62,7 @@ metadata/samplesheets/
 
 ### Atlas-Level Analysis
 
-This block inspect disease-associated transcriptional programs across the atlas
+This block inspects disease-associated transcriptional programs across the atlas.
 
 ```text
 src/atlas/00_qc_prefiltering.R
@@ -110,7 +108,7 @@ src/fibroblast_subcluster/02_de_ha_enriched_states.R
 src/fibroblast_subcluster/03_functional_analysis_ha_enriched_states.R
 ```
 
-These analyses resolve internal heterogeneity within the main compartments. The macrophage workflow characterizes resident, inflammatory and red-pulp-like states; the endothelial workflow focuses on activated and stress-response vascular states; the fibroblast workflow tests the HA-enriched destructive lining fibroblast states and their inflammatory, matrix-remodeling and iron-related programs
+These analyses resolve internal heterogeneity within the main compartments. The macrophage workflow characterizes resident, inflammatory and red-pulp-like states; the endothelial workflow focuses on activated and stress-response vascular states; the fibroblast workflow tests the HA-enriched destructive lining fibroblast states and their inflammatory, matrix-remodeling and iron-related programs.
 
 ### Trajectory Analysis
 
@@ -119,6 +117,7 @@ src/trajectory_analysis/monocle3_trajectory_analysis.R
 ```
 
 Monocle3 is applied to the already reclustered macrophage, endothelial and destructive lining fibroblast compartments
+
 ## Local Outputs
 
 Large and generated files are kept outside version control:
@@ -126,7 +125,17 @@ Large and generated files are kept outside version control:
 ```text
 data/
 results/
+  atlas/
+  macrophages/
+  endothelial/
+  fibroblasts/
+  trajectory_analysis/
 figures/
+  atlas/
+  macrophages/
+  endothelial/
+  fibroblasts/
+  trajectory_analysis/
+  paper/
 logs/
 ```
-
