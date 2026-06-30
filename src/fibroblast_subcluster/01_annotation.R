@@ -2,6 +2,8 @@
 ### Final destructive lining fibroblast annotation ###
 ######################################################
 
+# annotation of the destructive lining fibroblast subclusters into final states based on canonical markers and literature
+
 suppressPackageStartupMessages({
   library(Seurat)
   library(ggplot2)
@@ -30,9 +32,8 @@ reduction_name <- "umap.harmony.destructive.lining.fibroblast"
 pt_size <- 0.18
 min_cells_per_sample_ratio_plot <- 5
 low_cell_count_label <- "Low cell count (<5 cells)"
-
 condition_colors <- c(
-  "other" = "#B65A5A",
+  "other" = "#B65A5A", # OA + AR
   "HA" = "#5B8DB8"
 )
 
@@ -64,15 +65,15 @@ cluster_levels <- unique(cluster_ids)
 cluster_levels <- sort_cluster_levels(cluster_levels)
 cluster_counts <- table(cluster_ids)
 
+# df with cluster annotation info
 cluster_annotation_table <- data.frame(
   destructive_lining_fibroblast_subcluster = cluster_levels,
   destructive_lining_fibroblast_subtype = unname(destructive_lining_fibroblast_subcluster_labels[cluster_levels]),
   n_cells = as.integer(cluster_counts[cluster_levels]),
   stringsAsFactors = FALSE
 )
-
+# save
 write.csv(cluster_annotation_table, file.path(res_dir, "destructive_lining_fibroblast_subcluster_annotation_table.csv"), row.names = FALSE)
-
 canonical_marker_table <- make_destructive_lining_fibroblast_marker_table(obj_fibro)
 write.csv(canonical_marker_table, file.path(res_dir, "destructive_lining_fibroblast_canonical_marker_table.csv"), row.names = FALSE)
 
@@ -83,6 +84,7 @@ cat("\nPlotting destructive lining fibroblast UMAPs...\n")
 fibro_levels <- levels(obj_fibro@meta.data[[label_col]])
 fibro_color_map <- get_destructive_lining_fibroblast_colors(fibro_levels)
 
+# plot UMAP colored by final fibroblast states
 p_umap <- DimPlot(
   object = obj_fibro,
   reduction = reduction_name,
@@ -108,7 +110,6 @@ p_umap <- DimPlot(
     plot.margin = margin(20, 20, 20, 20)
   ) +
   guides(color = guide_legend(ncol = 1, override.aes = list(size = 4)))
-
 ggsave(
   filename = file.path(fig_dir, "umap_by_destructive_lining_fibroblast_subtype.png"),
   plot = p_umap,
@@ -121,7 +122,6 @@ ggsave(
 condition_values <- ifelse(as.character(obj_fibro@meta.data$condition) == "HA", "HA", "other")
 obj_fibro@meta.data$condition <- factor(condition_values, levels = c("HA", "other"))
 condition_color_map <- condition_colors[levels(obj_fibro@meta.data$condition)]
-
 p_umap_condition <- DimPlot(
   object = obj_fibro,
   reduction = reduction_name,
@@ -198,7 +198,7 @@ for (split_col in c("condition", "condition_all")) {
   )
 }
 
-# plot the two usual composition barplots by condition and condition_all
+# plot two composition barplots by condition and condition_all (OA and AR splitted)
 for (x_col in c("condition", "condition_all")) {
   plot_df <- build_fibroblast_ratio_plot_data(
     meta_df = obj_fibro@meta.data,
@@ -207,7 +207,6 @@ for (x_col in c("condition", "condition_all")) {
   )
 
   p_ratio <- plot_fibroblast_ratio(plot_df, fibro_color_map)
-
   ggsave(
     filename = file.path(fig_dir, paste0("destructive_lining_fibroblast_subtype_ratio_by_", x_col, ".png")),
     plot = p_ratio,
@@ -226,11 +225,10 @@ sample_ratio_df <- build_fibroblast_sample_ratio_plot_data(
   min_cells = min_cells_per_sample_ratio_plot,
   low_cell_label = low_cell_count_label
 )
-
+# save
 write.csv(sample_ratio_df[, c("sample_id", "condition", "cell_type", "n_cells", "sample_total", "ratio", "is_low_cell_count")], file.path(res_dir, "destructive_lining_fibroblast_subtype_ratio_by_sample.csv"), row.names = FALSE)
 
 p_sample_ratio <- plot_fibroblast_sample_ratio(sample_ratio_df, fibro_color_map, low_cell_label = low_cell_count_label)
-
 ggsave(
   filename = file.path(fig_dir, "destructive_lining_fibroblast_subtype_ratio_by_sample_grouped_condition.png"),
   plot = p_sample_ratio,
@@ -280,7 +278,7 @@ ggsave(
   dpi = 600
 )
 
-# plot iron-related FeaturePlots to inspect iron-handling states
+# plot iron-related FeaturePlots to check iron-handling states
 iron_features_use <- destructive_lining_fibroblast_iron_features[
   destructive_lining_fibroblast_iron_features %in% rownames(obj_fibro)
 ]
@@ -303,6 +301,10 @@ ggsave(
   dpi = 600
 )
 
+# ----------------- #
+# ----- HMOX1 ----- #
+# ----------------- #
+
 # focused HMOX1 plots in the final fibroblast states
 hmox1_gene <- "HMOX1"
 
@@ -322,11 +324,12 @@ hmox1_summary <- data.frame(
   pct_expressing = hmox1_summary$expression[, "pct_expr"],
   stringsAsFactors = FALSE
 )
-
+# save
 write.csv(hmox1_summary, file.path(res_dir, "HMOX1_expression_summary_destructive_lining_fibroblast_subtypes.csv"), row.names = FALSE)
 cat("HMOX1 summary:\n")
 print(hmox1_summary)
 
+# feature plot for HMOX1
 p_hmox1_feature <- FeaturePlot(
   object = obj_fibro,
   features = hmox1_gene,
@@ -349,7 +352,6 @@ p_hmox1_feature <- FeaturePlot(
     legend.text = element_text(size = 19, color = "black"),
     plot.margin = margin(28, 28, 28, 28)
   )
-
 ggsave(
   filename = file.path(fig_dir, "featureplot_HMOX1_destructive_lining_fibroblast_subtypes.png"),
   plot = p_hmox1_feature,
@@ -358,6 +360,7 @@ ggsave(
   dpi = 600
 )
 
+# dotplot for HMOX1
 p_hmox1_dot <- DotPlot(
   object = obj_fibro,
   features = hmox1_gene,
