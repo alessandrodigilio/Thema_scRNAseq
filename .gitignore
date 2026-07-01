@@ -25,6 +25,7 @@ src/check_genes.R
 # Logs
 *.log
 logs/
+logs_test/
 
 # Python / Conda local artifacts
 __pycache__/
@@ -38,6 +39,7 @@ __pycache__/
 data/raw_counts/
 data/filtered_data/
 data/integrated_object/
+data_test/
 data/**/*.h5
 data/**/*.mtx
 data/**/*.mtx.gz
