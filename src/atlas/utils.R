@@ -44,6 +44,23 @@ read_sample_counts <- function(sample_id, sample_path) {
   counts
 }
 
+# read feature names from the matching 10x feature file
+read_sample_features <- function(sample_id, sample_path) {
+  feature_file <- file.path(raw_data_dir, sample_path, "features.tsv.gz")
+
+  if (!file.exists(feature_file)) stop("Missing feature file for sample ", sample_id, ": ", feature_file)
+
+  features <- read.table(
+    gzfile(feature_file),
+    sep = "\t",
+    stringsAsFactors = FALSE,
+    quote = "",
+    comment.char = ""
+  )
+
+  make.unique(as.character(features[[2]]))
+}
+
 # filtering: SoupX ambient RNA correction
 # this block estimates and removes ambient RNA before the final Seurat object
 

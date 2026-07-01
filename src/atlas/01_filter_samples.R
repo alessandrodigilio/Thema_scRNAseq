@@ -80,6 +80,25 @@ objs_filt <- list()
 # accumulate one summary row per sample
 log_rows <- list()
 
+# keep only features present in all samples, matching the original filtering workflow
+cat("\nComputing common RNA features across samples...\n")
+feature_sets <- list()
+for (s in samples) {
+  thr_row <- thr[thr$sample_name == s, , drop = FALSE]
+  if (nrow(thr_row) != 1) stop("Thresholds not found or duplicated for sample: ", s)
+
+  features <- read_sample_features(
+    sample_id = s,
+    sample_path = thr_row$sample_path[1]
+  )
+
+  feature_sets[[s]] <- features
+  cat(s, "features:", length(features), "\n")
+}
+
+common_features <- Reduce(intersect, feature_sets)
+cat("Common features retained:", length(common_features), "\n")
+
 for (s in samples) {
   cat("Filtering sample:", s, "\n")
   out_rds <- file.path(objects_dir, paste0(s, "_filtered.rds"))
@@ -89,6 +108,7 @@ for (s in samples) {
     sample_id = s,
     sample_path = thr_row$sample_path[1]
   )
+  counts <- counts[common_features, , drop = FALSE]
 
   # build a temp obj to compute RNA QC and define filtered cells
   obj_raw <- CreateSeuratObject(counts = counts, assay = "RNA", project = s)
