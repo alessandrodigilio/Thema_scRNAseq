@@ -26,7 +26,7 @@ metadata/
   samplesheets/
 
 env/
-  environment.yml
+  thema_environment.yml
 ```
 
 - `global_config.R` defines paths, sample-independent settings, final annotations, marker panels and plotting palettes
@@ -39,14 +39,14 @@ env/
 The R environment (R libraries) used for the analysis is described in:
 
 ```text
-env/environment.yml
+env/thema_environment.yml
 ```
 
 To reproduce it:
 
 ```bash
-conda env create -f env/environment.yml
-conda activate thema_r_env
+conda env create -f env/thema_environment.yml
+conda activate scatac_gex_env
 ```
 
 ## Workflow

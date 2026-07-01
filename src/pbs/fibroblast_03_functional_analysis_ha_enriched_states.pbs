@@ -17,6 +17,6 @@ project_root="${HOME}/Thema_R"
 cd "$project_root"
 
 eval "$(conda shell.bash hook)"
-conda activate thema_r_env
+conda activate scatac_gex_env
 
 Rscript src/fibroblast_subcluster/03_functional_analysis_ha_enriched_states.R
