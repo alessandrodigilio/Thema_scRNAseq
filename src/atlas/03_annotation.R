@@ -222,22 +222,6 @@ for (split_col in c("condition", "condition_all")) {
   )
 }
 
-# plot cell type ratios by sample and condition
-meta_df <- obj@meta.data
-ratio_colors <- build_celltype_colors(obj$cell_type, cluster_name_colors)
-
-for (group_col in c("sample_id", "condition", "condition_all")) {
-  group_values <- as.character(meta_df[[group_col]])
-  group_values[is.na(group_values) | trimws(group_values) == ""] <- "NA"
-  meta_df[[group_col]] <- group_values
-
-  ratio_df <- build_ratio_plot_data(meta_df, group_col, "cell_type")
-  p_ratio <- make_ratio_plot(ratio_df, ratio_colors)
-  plot_width <- ifelse(group_col == "sample_id", max(8, 1.2 * length(unique(ratio_df$group))), max(12, 3.2 * length(unique(ratio_df$group))))
-
-  ggsave(file.path(fig_dir, paste0("celltype_ratio_by_", group_col, ".png")), p_ratio, width = plot_width, height = 10, dpi = 600)
-}
-
 # dotplot of canonical markers used for the final cell type labels
 cat("\nPlotting canonical marker dotplot...\n")
 Idents(obj) <- factor(obj$cell_type, levels = rev(celltype_levels))

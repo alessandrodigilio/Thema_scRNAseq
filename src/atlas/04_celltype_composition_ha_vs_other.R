@@ -44,6 +44,22 @@ meta_df$sample_id <- as.character(meta_df$sample_id)
 meta_df$cell_type <- as.character(meta_df$cell_type)
 cell_types <- unique(meta_df$cell_type)
 
+# plot atlas cell type ratios by sample and condition
+ratio_meta <- obj@meta.data
+ratio_colors <- build_celltype_colors(ratio_meta$cell_type, cluster_name_colors)
+
+for (group_col in c("sample_id", "condition", "condition_all")) {
+  group_values <- as.character(ratio_meta[[group_col]])
+  group_values[is.na(group_values) | trimws(group_values) == ""] <- "NA"
+  ratio_meta[[group_col]] <- group_values
+
+  ratio_df <- build_ratio_plot_data(ratio_meta, group_col, "cell_type")
+  p_ratio <- make_ratio_plot(ratio_df, ratio_colors)
+  plot_width <- ifelse(group_col == "sample_id", max(8, 1.2 * length(unique(ratio_df$group))), max(12, 3.2 * length(unique(ratio_df$group))))
+
+  ggsave(file.path(fig_dir, paste0("celltype_ratio_by_", group_col, ".png")), p_ratio, width = plot_width, height = 10, dpi = 600)
+}
+
 # calculate cell type fractions for each sample
 composition_df <- build_sample_composition(meta_df)
 composition_df$condition <- factor(as.character(composition_df$condition), levels = group_levels)
