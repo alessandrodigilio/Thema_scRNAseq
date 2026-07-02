@@ -68,11 +68,11 @@ This block inspects disease-associated transcriptional programs across the atlas
 src/atlas/00_qc_prefiltering.R
 src/atlas/01_filter_samples.R
 src/atlas/02_integration.R
-src/atlas/04_annotation.R
-src/atlas/05_celltype_composition_ha_vs_other.R
-src/atlas/06_pseudobulk_deseq2_ha_vs_other.R
-src/atlas/07_enrichment_ha_vs_other.R
-src/atlas/08_ferroptosis_ha_vs_other.R
+src/atlas/03_annotation.R
+src/atlas/04_celltype_composition_ha_vs_other.R
+src/atlas/05_pseudobulk_deseq2_ha_vs_other.R
+src/atlas/06_enrichment_ha_vs_other.R
+src/atlas/07_ferroptosis_ha_vs_other.R
 ```
 
 ### Focused Subcluster Analyses

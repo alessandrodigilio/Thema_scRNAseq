@@ -247,7 +247,7 @@ res_to_colname <- function(resolution) {
 }
 
 # -------------------------------------------------------------------------
-# manual annotation helpers used by 04_annotation.R
+# manual annotation helpers used by 03_annotation.R
 # -------------------------------------------------------------------------
 
 # sort cluster labels numerically when possible
@@ -321,7 +321,7 @@ make_ratio_plot <- function(plot_df, fill_colors) {
 }
 
 # -------------------------------------------------------------------------
-# composition helpers used by 05_celltype_composition_ha_vs_other.R
+# composition helpers used by 04_celltype_composition_ha_vs_other.R
 # -------------------------------------------------------------------------
 
 # calculate cell type fractions inside each sample
@@ -373,7 +373,7 @@ test_composition_ha_vs_other <- function(composition_df, cell_types, group_level
 }
 
 # -------------------------------------------------------------------------
-# pseudobulk helpers used by 06_pseudobulk_deseq2_ha_vs_other.R
+# pseudobulk helpers used by 05_pseudobulk_deseq2_ha_vs_other.R
 # -------------------------------------------------------------------------
 
 # make a compact file-safe label
@@ -646,7 +646,7 @@ do.call(rbind, deg_summary_rows)
 }
 
 # -------------------------------------------------------------------------
-# iron and ferroptosis helpers used by 08_ferroptosis_ha_vs_other.R
+# iron and ferroptosis helpers used by 07_ferroptosis_ha_vs_other.R
 # -------------------------------------------------------------------------
 
 # read gene symbols from one or more Excel files
@@ -961,7 +961,7 @@ make_iron_gene_bubble_plot <- function(sig_hits_df, celltype_order) {
 }
 
 # -------------------------------------------------------------------------
-# enrichment helpers used by 07_enrichment_ha_vs_other.R
+# enrichment helpers used by 06_enrichment_ha_vs_other.R
 # -------------------------------------------------------------------------
 
 # load one MSigDB table using either the new or old msigdbr argument names
