@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N filter_samples
-#PBS -l select=1:ncpus=12:mem=128gb
+#PBS -l select=1:ncpus=12:mem=250gb
 #PBS -l walltime=24:00:00
 #PBS -o logs/filtering_out.log
 #PBS -e logs/filtering_err.log
